@@ -15,14 +15,9 @@ struct CardCollectionView: View {
     
     // MARK: - State
     @State private var selectedCategory: SparkCategory? = nil
-    @State private var selectedRarity: CardRarity? = nil
     @State private var showOnlyOwned = false
     @State private var selectedCard: SparkCardModel? = nil
-    @State private var sortOption: CardSortOption = .rarity
     @State private var searchText = ""
-    @State private var viewMode: CollectionViewMode = .grid
-    @State private var showingAchievements = false
-    @State private var showingStats = false
     
     // MARK: - Computed Properties
     
@@ -32,11 +27,7 @@ struct CardCollectionView: View {
         GridItem(.flexible(), spacing: IgnitionSpacing.sm)
     ]
     
-    private let listColumns = [
-        GridItem(.flexible(), spacing: IgnitionSpacing.md)
-    ]
-    
-    var filteredAndSortedCards: [SparkCardModel] {
+    var filteredCards: [SparkCardModel] {
         var cards = cardManager.allCards
         
         // Apply filters
@@ -48,56 +39,22 @@ struct CardCollectionView: View {
             cards = cards.filter { $0.category == category }
         }
         
-        if let rarity = selectedRarity {
-            cards = cards.filter { $0.rarity == rarity }
-        }
-        
         if !searchText.isEmpty {
             cards = cards.filter { card in
                 card.displayTitle.localizedCaseInsensitiveContains(searchText) ||
-                card.category.displayName.localizedCaseInsensitiveContains(searchText) ||
-                card.rarity.displayName.localizedCaseInsensitiveContains(searchText)
+                card.category.displayName.localizedCaseInsensitiveContains(searchText)
             }
         }
         
-        // Apply sorting
-        switch sortOption {
-        case .rarity:
-            cards.sort { (card1, card2) in
-                if card1.rarity == card2.rarity {
-                    return card1.name < card2.name
-                }
-                return card1.rarity > card2.rarity
+        // Sort by rarity (descending) and then by name
+        cards.sort { (card1, card2) in
+            if card1.rarity == card2.rarity {
+                return card1.name < card2.name
             }
-        case .name:
-            cards.sort { $0.displayTitle < $1.displayTitle }
-        case .category:
-            cards.sort { (card1, card2) in
-                if card1.category == card2.category {
-                    return card1.rarity > card2.rarity
-                }
-                return card1.category.displayName < card2.category.displayName
-            }
-        case .obtained:
-            cards.sort { (card1, card2) in
-                // Owned cards first, then by obtain date (most recent first)
-                if card1.isOwned == card2.isOwned {
-                    if let date1 = card1.obtainedAt, let date2 = card2.obtainedAt {
-                        return date1 > date2
-                    }
-                    return card1.isOwned
-                }
-                return card1.isOwned && !card2.isOwned
-            }
-        case .duplicates:
-            cards.sort { $0.ownedCount > $1.ownedCount }
+            return card1.rarity > card2.rarity
         }
         
         return cards
-    }
-    
-    var achievementsUnlocked: [String] {
-        return cardManager.checkAchievements()
     }
     
     // MARK: - Body
@@ -116,16 +73,11 @@ struct CardCollectionView: View {
                         // Search bar
                         searchBar
                         
-                        // Filters and controls
-                        filtersSection
-                        
-                        // Achievements banner (if any unlocked)
-                        if !achievementsUnlocked.isEmpty {
-                            achievementsBanner
-                        }
+                        // Category filters
+                        categoryFilters
                         
                         // Cards display
-                        if filteredAndSortedCards.isEmpty {
+                        if filteredCards.isEmpty {
                             emptyStateView
                         } else {
                             cardsSection
@@ -137,54 +89,19 @@ struct CardCollectionView: View {
             .navigationTitle("Card Collection")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        showingStats = true
+                        dismiss()
                         audioHapticsManager.uiTapped()
                     }) {
-                        Image(systemName: "chart.bar.fill")
-                            .foregroundColor(IgnitionColors.ignitionOrange)
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: IgnitionSpacing.sm) {
-                        Button(action: {
-                            showingAchievements = true
-                            audioHapticsManager.uiTapped()
-                        }) {
-                            ZStack {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundColor(IgnitionColors.goldAccent)
-                                
-                                if !achievementsUnlocked.isEmpty {
-                                    Circle()
-                                        .fill(IgnitionColors.fireRed)
-                                        .frame(width: 8, height: 8)
-                                        .offset(x: 8, y: -8)
-                                }
-                            }
-                        }
-                        
-                        Button(action: {
-                            dismiss()
-                            audioHapticsManager.uiTapped()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(IgnitionColors.mediumGray)
-                                .font(.system(size: 24))
-                        }
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(IgnitionColors.mediumGray)
+                            .font(.system(size: 24))
                     }
                 }
             }
             .sheet(item: $selectedCard) { card in
                 CardDetailView(card: card)
-            }
-            .sheet(isPresented: $showingAchievements) {
-                CardAchievementsView(achievements: achievementsUnlocked)
-            }
-            .sheet(isPresented: $showingStats) {
-                CollectionStatsView()
             }
         }
     }
@@ -265,59 +182,38 @@ struct CardCollectionView: View {
             Divider()
                 .background(IgnitionColors.mediumGray.opacity(0.3))
             
-            // Rarity breakdown
+            // Rarity breakdown (display only)
             HStack(spacing: IgnitionSpacing.md) {
                 ForEach(CardRarity.allCases, id: \.self) { rarity in
                     let (owned, total) = cardManager.getRarityCompletion(rarity)
                     
-                    Button(action: {
-                        if selectedRarity == rarity {
-                            selectedRarity = nil
-                        } else {
-                            selectedRarity = rarity
-                        }
-                        audioHapticsManager.playSelectionHaptic()
-                    }) {
-                        VStack(spacing: IgnitionSpacing.xs) {
-                            ZStack {
-                                Circle()
-                                    .fill(rarity.color.opacity(0.2))
-                                    .frame(width: 44, height: 44)
-                                
-                                Circle()
-                                    .fill(rarity.color)
-                                    .frame(width: 36, height: 36)
-                                
-                                if cardManager.isRarityComplete(rarity) {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
+                    VStack(spacing: IgnitionSpacing.xs) {
+                        ZStack {
+                            Circle()
+                                .fill(rarity.color.opacity(0.2))
+                                .frame(width: 44, height: 44)
+                            
+                            Circle()
+                                .fill(rarity.color)
+                                .frame(width: 36, height: 36)
+                            
+                            if cardManager.isRarityComplete(rarity) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
                             }
-                            
-                            Text("\(owned)/\(total)")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(selectedRarity == rarity ? rarity.color : .white)
-                            
-                            Text(rarity.displayName)
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(IgnitionColors.secondaryText)
-                                .lineLimit(1)
                         }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-            
-            // Category breakdown (compact)
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: IgnitionSpacing.sm) {
-                    ForEach(SparkCategory.allCases, id: \.self) { category in
-                        let (owned, total) = cardManager.getCategoryCompletion(category)
                         
-                        categoryProgressChip(category: category, owned: owned, total: total)
+                        Text("\(owned)/\(total)")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.white)
+                        
+                        Text(rarity.displayName)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(IgnitionColors.secondaryText)
+                            .lineLimit(1)
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -339,44 +235,6 @@ struct CardCollectionView: View {
                 .shadow(color: IgnitionShadow.large, radius: 10, x: 0, y: 5)
         )
         .padding(.horizontal, IgnitionSpacing.md)
-    }
-    
-    private func categoryProgressChip(category: SparkCategory, owned: Int, total: Int) -> some View {
-        Button(action: {
-            if selectedCategory == category {
-                selectedCategory = nil
-            } else {
-                selectedCategory = category
-            }
-            audioHapticsManager.playSelectionHaptic()
-        }) {
-            HStack(spacing: IgnitionSpacing.xs) {
-                Image(systemName: category.iconName)
-                    .font(.system(size: 12))
-                    .foregroundColor(category.color)
-                
-                Text("\(owned)/\(total)")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.white)
-                
-                if cardManager.isCategoryComplete(category) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 10))
-                        .foregroundColor(IgnitionColors.goldAccent)
-                }
-            }
-            .padding(.horizontal, IgnitionSpacing.sm)
-            .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(selectedCategory == category ? category.color.opacity(0.3) : IgnitionColors.darkGray)
-                    .overlay(
-                        Capsule()
-                            .stroke(selectedCategory == category ? category.color : .clear, lineWidth: 1.5)
-                    )
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
     }
     
     // MARK: - Search Bar
@@ -408,181 +266,108 @@ struct CardCollectionView: View {
         .padding(.horizontal, IgnitionSpacing.md)
     }
     
-    // MARK: - Filters Section
+    // MARK: - Category Filters
     
-    private var filtersSection: some View {
+    private var categoryFilters: some View {
         VStack(spacing: IgnitionSpacing.sm) {
-            // Top row: View mode, Sort, Owned toggle
-            HStack(spacing: IgnitionSpacing.sm) {
-                // View mode toggle
-                Picker("View Mode", selection: $viewMode) {
-                    Image(systemName: "square.grid.3x3.fill").tag(CollectionViewMode.grid)
-                    Image(systemName: "list.bullet").tag(CollectionViewMode.list)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 100)
-                
-                Spacer()
-                
-                // Sort menu
-                Menu {
-                    ForEach(CardSortOption.allCases, id: \.self) { option in
-                        Button(action: {
-                            sortOption = option
-                            audioHapticsManager.playSelectionHaptic()
-                        }) {
-                            HStack {
-                                Text(option.displayName)
-                                if sortOption == option {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
+            // Category chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: IgnitionSpacing.sm) {
+                    // All categories button
+                    Button(action: {
+                        selectedCategory = nil
+                        showOnlyOwned = false
+                        audioHapticsManager.playSelectionHaptic()
+                    }) {
+                        HStack(spacing: IgnitionSpacing.xs) {
+                            Image(systemName: "square.grid.3x3.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(selectedCategory == nil ? .white : IgnitionColors.secondaryText)
+                            
+                            Text("All")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(selectedCategory == nil ? .white : IgnitionColors.secondaryText)
                         }
+                        .padding(.horizontal, IgnitionSpacing.md)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .fill(selectedCategory == nil ? IgnitionColors.ignitionOrange : IgnitionColors.darkGray)
+                        )
                     }
-                } label: {
-                    HStack(spacing: IgnitionSpacing.xs) {
-                        Image(systemName: "arrow.up.arrow.down")
-                        Text(sortOption.displayName)
-                    }
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, IgnitionSpacing.md)
-                    .padding(.vertical, IgnitionSpacing.sm)
-                    .background(
-                        RoundedRectangle(cornerRadius: IgnitionRadius.md)
-                            .fill(themeManager.cardColor)
-                    )
-                }
-                
-                // Owned toggle
-                Toggle(isOn: $showOnlyOwned) {
-                    Text("Owned")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
-                }
-                .toggleStyle(SwitchToggleStyle(tint: IgnitionColors.ignitionOrange))
-                .fixedSize()
-            }
-            .padding(.horizontal, IgnitionSpacing.md)
-            
-            // Active filters display
-            if selectedCategory != nil || selectedRarity != nil || showOnlyOwned {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: IgnitionSpacing.xs) {
-                        Text("Filters:")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(IgnitionColors.secondaryText)
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    ForEach(SparkCategory.allCases, id: \.self) { category in
+                        let (owned, total) = cardManager.getCategoryCompletion(category)
                         
-                        if let category = selectedCategory {
-                            filterTag(text: category.displayName, color: category.color) {
+                        Button(action: {
+                            if selectedCategory == category {
                                 selectedCategory = nil
+                            } else {
+                                selectedCategory = category
                             }
-                        }
-                        
-                        if let rarity = selectedRarity {
-                            filterTag(text: rarity.displayName, color: rarity.color) {
-                                selectedRarity = nil
-                            }
-                        }
-                        
-                        if showOnlyOwned {
-                            filterTag(text: "Owned Only", color: IgnitionColors.ignitionOrange) {
-                                showOnlyOwned = false
-                            }
-                        }
-                        
-                        Button(action: {
-                            selectedCategory = nil
-                            selectedRarity = nil
                             showOnlyOwned = false
                             audioHapticsManager.playSelectionHaptic()
                         }) {
-                            Text("Clear All")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(IgnitionColors.fireRed)
-                                .padding(.horizontal, IgnitionSpacing.xs)
-                                .padding(.vertical, 4)
+                            HStack(spacing: IgnitionSpacing.xs) {
+                                Image(systemName: category.iconName)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(selectedCategory == category ? .white : category.color)
+                                
+                                Text("\(owned)/\(total)")
+                                    .font(.system(size: 12, weight: .bold))
+                                    .foregroundColor(selectedCategory == category ? .white : IgnitionColors.secondaryText)
+                                
+                                if cardManager.isCategoryComplete(category) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(IgnitionColors.goldAccent)
+                                }
+                            }
+                            .padding(.horizontal, IgnitionSpacing.md)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .fill(selectedCategory == category ? category.color : IgnitionColors.darkGray)
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(selectedCategory == category ? .clear : category.color.opacity(0.3), lineWidth: 1)
+                                    )
+                            )
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .padding(.horizontal, IgnitionSpacing.md)
-                }
-            }
-        }
-    }
-    
-    private func filterTag(text: String, color: Color, onRemove: @escaping () -> Void) -> some View {
-        HStack(spacing: 4) {
-            Text(text)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.white)
-            
-            Button(action: {
-                onRemove()
-                audioHapticsManager.playSelectionHaptic()
-            }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white)
-            }
-        }
-        .padding(.horizontal, IgnitionSpacing.xs)
-        .padding(.vertical, 4)
-        .background(
-            Capsule()
-                .fill(color.opacity(0.3))
-                .overlay(
-                    Capsule()
-                        .stroke(color, lineWidth: 1)
-                )
-        )
-    }
-    
-    // MARK: - Achievements Banner
-    
-    private var achievementsBanner: some View {
-        Button(action: {
-            showingAchievements = true
-            audioHapticsManager.uiTapped()
-        }) {
-            HStack(spacing: IgnitionSpacing.sm) {
-                Image(systemName: "trophy.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(IgnitionColors.goldAccent)
-                    .goldGlow(radius: 8)
-                
-                VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                    Text("🎉 Achievement Unlocked!")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
                     
-                    Text("\(achievementsUnlocked.count) new achievement\(achievementsUnlocked.count > 1 ? "s" : "")")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(IgnitionColors.goldAccent)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundColor(IgnitionColors.mediumGray)
-            }
-            .padding(IgnitionSpacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: IgnitionRadius.lg)
-                    .fill(
-                        LinearGradient(
-                            colors: [IgnitionColors.goldAccent.opacity(0.2), IgnitionColors.ignitionOrange.opacity(0.1)],
-                            startPoint: .leading,
-                            endPoint: .trailing
+                    // Owned filter
+                    Button(action: {
+                        showOnlyOwned.toggle()
+                        audioHapticsManager.playSelectionHaptic()
+                    }) {
+                        HStack(spacing: IgnitionSpacing.xs) {
+                            Image(systemName: showOnlyOwned ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 12))
+                                .foregroundColor(showOnlyOwned ? IgnitionColors.goldAccent : IgnitionColors.secondaryText)
+                            
+                            Text("Owned Only")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(showOnlyOwned ? .white : IgnitionColors.secondaryText)
+                        }
+                        .padding(.horizontal, IgnitionSpacing.md)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .fill(showOnlyOwned ? IgnitionColors.goldAccent.opacity(0.3) : IgnitionColors.darkGray)
+                                .overlay(
+                                    Capsule()
+                                        .stroke(showOnlyOwned ? IgnitionColors.goldAccent : .clear, lineWidth: 1)
+                                )
                         )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: IgnitionRadius.lg)
-                            .stroke(IgnitionColors.goldAccent.opacity(0.5), lineWidth: 2)
-                    )
-            )
-            .padding(.horizontal, IgnitionSpacing.md)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal, IgnitionSpacing.md)
+            }
         }
-        .buttonStyle(PlainButtonStyle())
     }
     
     // MARK: - Cards Section
@@ -591,7 +376,7 @@ struct CardCollectionView: View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
             // Result count
             HStack {
-                Text("\(filteredAndSortedCards.count) card\(filteredAndSortedCards.count != 1 ? "s" : "")")
+                Text("\(filteredCards.count) card\(filteredCards.count != 1 ? "s" : "")")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(IgnitionColors.secondaryText)
                 
@@ -599,18 +384,13 @@ struct CardCollectionView: View {
             }
             .padding(.horizontal, IgnitionSpacing.md)
             
-            // Cards grid/list
-            LazyVGrid(columns: viewMode == .grid ? gridColumns : listColumns, spacing: IgnitionSpacing.md) {
-                ForEach(filteredAndSortedCards, id: \.id) { card in
-                    if viewMode == .grid {
-                        cardGridItem(card)
-                    } else {
-                        cardListItem(card)
-                    }
+            // Cards grid
+            LazyVGrid(columns: gridColumns, spacing: IgnitionSpacing.md) {
+                ForEach(filteredCards, id: \.id) { card in
+                    cardGridItem(card)
                 }
             }
             .padding(.horizontal, IgnitionSpacing.md)
-            .animation(.easeInOut(duration: 0.3), value: viewMode)
         }
     }
     
@@ -714,116 +494,6 @@ struct CardCollectionView: View {
         .buttonStyle(PlainButtonStyle())
     }
     
-    // MARK: - Card List Item
-    
-    private func cardListItem(_ card: SparkCardModel) -> some View {
-        Button(action: {
-            if card.isOwned {
-                selectedCard = card
-                audioHapticsManager.uiTapped()
-            }
-        }) {
-            HStack(spacing: IgnitionSpacing.md) {
-                // Card thumbnail
-                ZStack {
-                    RoundedRectangle(cornerRadius: IgnitionRadius.sm)
-                        .fill(card.isOwned ? IgnitionColors.ignitionBlack : IgnitionColors.darkGray)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: IgnitionRadius.sm)
-                                .stroke(card.isOwned ? card.rarity.color : IgnitionColors.mediumGray.opacity(0.3), lineWidth: card.isOwned ? 2 : 1)
-                        )
-                    
-                    if card.isOwned {
-                        if let _ = UIImage(named: card.assetName) {
-                            Image(card.assetName)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 60, height: 84)
-                                .clipped()
-                                .cornerRadius(IgnitionRadius.sm)
-                        } else {
-                            Image(systemName: card.category.iconName)
-                                .font(.system(size: 30))
-                                .foregroundColor(card.category.color)
-                        }
-                    } else {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(IgnitionColors.mediumGray.opacity(0.5))
-                    }
-                }
-                .frame(width: 60, height: 84)
-                .shadow(color: card.isOwned ? card.rarity.glowColor.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
-                
-                // Card info
-                VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                    Text(card.isOwned ? card.displayTitle : "???")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                    
-                    HStack(spacing: IgnitionSpacing.xs) {
-                        // Rarity badge
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(card.rarity.color)
-                                .frame(width: 8, height: 8)
-                            
-                            Text(card.rarity.displayName)
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(card.rarity.color)
-                        }
-                        .padding(.horizontal, IgnitionSpacing.xs)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(card.rarity.color.opacity(0.2))
-                        )
-                        
-                        // Category
-                        HStack(spacing: 4) {
-                            Image(systemName: card.category.iconName)
-                                .font(.system(size: 10))
-                                .foregroundColor(card.category.color)
-                            
-                            Text(card.category.displayName)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(IgnitionColors.secondaryText)
-                        }
-                    }
-                    
-                    if card.isOwned {
-                        HStack(spacing: IgnitionSpacing.sm) {
-                            if card.ownedCount > 1 {
-                                Text("×\(card.ownedCount)")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(IgnitionColors.goldAccent)
-                            }
-                            
-                            if let obtainedAt = card.obtainedAt {
-                                Text("Obtained \(obtainedAt, style: .relative)")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(IgnitionColors.secondaryText)
-                            }
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                if card.isOwned {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(IgnitionColors.mediumGray)
-                }
-            }
-            .padding(IgnitionSpacing.sm)
-            .background(
-                RoundedRectangle(cornerRadius: IgnitionRadius.md)
-                    .fill(themeManager.cardColor)
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-    
     // MARK: - Empty State
     
     private var emptyStateView: some View {
@@ -841,10 +511,9 @@ struct CardCollectionView: View {
                 .foregroundColor(IgnitionColors.secondaryText)
                 .multilineTextAlignment(.center)
             
-            if selectedCategory != nil || selectedRarity != nil || showOnlyOwned {
+            if selectedCategory != nil || showOnlyOwned {
                 Button(action: {
                     selectedCategory = nil
-                    selectedRarity = nil
                     showOnlyOwned = false
                     audioHapticsManager.uiTapped()
                 }) {
@@ -876,198 +545,7 @@ struct CardCollectionView: View {
     }
 }
 
-// MARK: - Supporting Types
-
-enum CollectionViewMode {
-    case grid
-    case list
-}
-
-enum CardSortOption: CaseIterable {
-    case rarity
-    case name
-    case category
-    case obtained
-    case duplicates
-    
-    var displayName: String {
-        switch self {
-        case .rarity: return "Rarity"
-        case .name: return "Name"
-        case .category: return "Category"
-        case .obtained: return "Obtained"
-        case .duplicates: return "Duplicates"
-        }
-    }
-}
-
-// MARK: - Card Achievements View
-
-struct CardAchievementsView: View {
-    let achievements: [String]
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.themeManager) private var themeManager
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: IgnitionSpacing.lg) {
-                    ForEach(achievements, id: \.self) { achievement in
-                        HStack(spacing: IgnitionSpacing.md) {
-                            Image(systemName: "trophy.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(IgnitionColors.goldAccent)
-                                .goldGlow(radius: 10)
-                            
-                            VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                                Text(achievement)
-                                    .font(.system(size: 18, weight: .bold))
-                                    .foregroundColor(.white)
-                                
-                                Text("Achievement Unlocked!")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(IgnitionColors.goldAccent)
-                            }
-                            
-                            Spacer()
-                        }
-                        .padding(IgnitionSpacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: IgnitionRadius.lg)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [IgnitionColors.goldAccent.opacity(0.2), IgnitionColors.ignitionOrange.opacity(0.1)],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: IgnitionRadius.lg)
-                                        .stroke(IgnitionColors.goldAccent.opacity(0.5), lineWidth: 2)
-                                )
-                        )
-                    }
-                }
-                .padding(IgnitionSpacing.md)
-            }
-            .background(themeManager.backgroundColor)
-            .navigationTitle("Achievements")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(IgnitionColors.ignitionOrange)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Collection Stats View
-
-struct CollectionStatsView: View {
-    @StateObject private var cardManager = CardManager.shared
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.themeManager) private var themeManager
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: IgnitionSpacing.lg) {
-                    // Overall stats
-                    statsCard(
-                        title: "Collection Overview",
-                        stats: [
-                            ("Total Cards", "50"),
-                            ("Owned", "\(cardManager.ownedCardsCount)"),
-                            ("Completion", "\(Int(cardManager.completionPercentage * 100))%"),
-                            ("Missing", "\(50 - cardManager.ownedCardsCount)")
-                        ]
-                    )
-                    
-                    // Rarity stats
-                    statsCard(
-                        title: "By Rarity",
-                        stats: CardRarity.allCases.map { rarity in
-                            let (owned, total) = cardManager.getRarityCompletion(rarity)
-                            return (rarity.displayName, "\(owned)/\(total)")
-                        }
-                    )
-                    
-                    // Category stats
-                    statsCard(
-                        title: "By Category",
-                        stats: SparkCategory.allCases.map { category in
-                            let (owned, total) = cardManager.getCategoryCompletion(category)
-                            return (category.displayName, "\(owned)/\(total)")
-                        }
-                    )
-                    
-                    // Duplicates stats
-                    if !cardManager.ownedCards.isEmpty {
-                        let totalDuplicates = cardManager.ownedCards.reduce(0) { $0 + ($1.ownedCount - 1) }
-                        let mostDuplicates = cardManager.ownedCards.max(by: { $0.ownedCount < $1.ownedCount })
-                        
-                        statsCard(
-                            title: "Duplicates",
-                            stats: [
-                                ("Total Duplicates", "\(totalDuplicates)"),
-                                ("Most Duplicated", mostDuplicates?.displayTitle ?? "N/A"),
-                                ("Duplicate Count", "×\(mostDuplicates?.ownedCount ?? 0)")
-                            ]
-                        )
-                    }
-                }
-                .padding(IgnitionSpacing.md)
-            }
-            .background(themeManager.backgroundColor)
-            .navigationTitle("Collection Stats")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(IgnitionColors.ignitionOrange)
-                }
-            }
-        }
-    }
-    
-    private func statsCard(title: String, stats: [(String, String)]) -> some View {
-        VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text(title)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(.white)
-            
-            Divider()
-                .background(IgnitionColors.mediumGray.opacity(0.3))
-            
-            ForEach(stats, id: \.0) { stat in
-                HStack {
-                    Text(stat.0)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(IgnitionColors.secondaryText)
-                    
-                    Spacer()
-                    
-                    Text(stat.1)
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                }
-            }
-        }
-        .padding(IgnitionSpacing.md)
-        .background(
-            RoundedRectangle(cornerRadius: IgnitionRadius.lg)
-                .fill(themeManager.cardColor)
-        )
-    }
-}
-
-// MARK: - Card Detail View (Enhanced)
+// MARK: - Card Detail View
 
 struct CardDetailView: View {
     let card: SparkCardModel

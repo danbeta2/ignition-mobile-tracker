@@ -25,39 +25,51 @@ The heart of the app - a flexible system for capturing moments of action and ins
 - **Points System**: Earn points based on category and intensity (e.g., Energy spark at extreme intensity = more points than an Idea spark at low intensity)
 
 ### 2. **Mission System**
-30 permanent, fixed missions that reset daily or weekly, providing consistent goals.
+41 permanent, fixed missions that reset daily, weekly, or remain as lifetime achievements.
 
 - **Mission Types:**
   - **Daily Missions (15)**: Reset every day at midnight
   - **Weekly Missions (15)**: Reset every Monday
+  - **Achievement Missions (11)**: Lifetime goals related to card collection
 
 - **Difficulty Tiers:**
-  - **Easy**: Quick wins for building momentum (50 points)
-  - **Medium**: Regular engagement (100 points)
-  - **Hard**: Sustained effort (200 points)
-  - **Expert**: Maximum commitment (500 points)
+  - **Easy**: Quick wins for building momentum (50-100 points)
+  - **Medium**: Regular engagement (75-300 points)
+  - **Hard**: Sustained effort (200-750 points)
+  - **Expert**: Maximum commitment (500-5000 points)
 
 - **Example Missions:**
-  - "Morning Spark": Create 1 spark before 12:00 PM
-  - "Decision Maker": Record 2 Decision-type sparks
-  - "Streak Builder": Maintain a 3-day consecutive spark streak
-  - "Category Master": Complete 10 total sparks in any single category
-  - "Legendary Week": Create 30 sparks in one week (Weekly, Expert, 500 points)
+  - **Daily**: "Morning Spark" - Create 1 spark before 12:00 PM (50 points)
+  - **Weekly**: "Weekly Warrior" - Complete 20 sparks this week (500 points)
+  - **Achievement**: "First Card" - Collect your first Spark Card (100 points)
+  - **Achievement**: "Master of Decision" - Complete the Decision category (10 cards, 750 points)
+  - **Achievement**: "Legendary Collector" - Collect all 3 Legendary cards (2000 points)
+  - **Achievement**: "Completionist" - Collect all 50 Spark Cards (5000 points)
+
+- **Card Collection Achievements:**
+  - First Card (1 card): 100 points
+  - Rare Collector (5 Rare cards): 300 points
+  - Epic Hunter (1 Epic card): 500 points
+  - Legendary Status (1 Legendary card): 1000 points
+  - Master of [Category] (10 cards per category): 750 points each
+  - Legendary Collector (3 Legendary cards): 2000 points
+  - Completionist (all 50 cards): 5000 points
 
 - **Features:**
-  - Auto-reset mechanism using UserDefaults and Timer
-  - Progress tracking per mission
+  - Auto-reset mechanism using UserDefaults and Timer for daily/weekly missions
+  - Progress tracking per mission with real-time updates
   - Visual completion feedback with animations
   - Multiple view modes: Grid, List, Board (Kanban-style)
-  - Filter by type, difficulty, status, and timeframe
+  - Filter by type (All/Daily/Weekly/Achievement), difficulty, status, and timeframe
   - Sort by progress, points, or deadline
+  - Unique SF Symbol icon per mission
 
 ### 3. **Spark Cards Collection**
 A collectible card game system integrated into spark creation.
 
 - **50 Unique Cards**:
   - 10 cards per spark category (Decision, Energy, Idea, Experiment, Challenge)
-  - 4 rarity tiers: Common (25 cards), Rare (15 cards), Epic (5 cards), Legendary (5 cards)
+  - 4 rarity tiers: Common (25 cards), Rare (15 cards), Epic (7 cards), Legendary (3 cards)
 
 - **Drop Mechanism**:
   - Automatic card drop on every spark completion
@@ -79,26 +91,39 @@ A collectible card game system integrated into spark creation.
 - **Card Reveal Animation**:
   - "Flame Burst" effect with particles
   - 3D flip animation from card back to front
-  - Rarity-specific glow effects
-  - Haptic and audio feedback
+  - Rarity-specific glow effects (gold for legendary, orange for epic, etc.)
+  - Haptic and audio feedback on card reveal
 
 - **Collection View**:
-  - Grid layout displaying all 50 cards
-  - Filter by category, rarity, or owned status
-  - Progress tracking (X/50 cards unlocked)
-  - Rarity breakdown (e.g., 15/25 Common, 5/15 Rare)
-  - Detailed card view showing artwork, rarity, category, obtain date, and duplicate count
+  - 3-column grid layout displaying all 50 cards
+  - Simple, clean filtering by category and "Owned Only" toggle
+  - Progress tracking (X/50 cards unlocked) with circular and linear progress indicators
+  - Rarity breakdown showing completion per tier (e.g., 15/25 Common, 5/15 Rare)
+  - Category progress chips showing cards collected per category
+  - Detailed card view (sheet) showing:
+    - Large card artwork
+    - Rarity and category badges
+    - Duplicate count (×N)
+    - First obtained date
+    - Duplicate value in points
+  - Search functionality by card name or category
 
 - **Home Integration**:
   - Dedicated "Spark Cards" section replaces "Recent Activity"
-  - Displays 3 rarest cards owned
+  - Displays 3 rarest cards owned (or empty placeholders if none)
   - Shows completion percentage with circular progress indicator
-  - Quick access to full collection via "View Collection" button
+  - Shows total cards collected (X/50)
+  - "View Collection" button to open full collection view
 
-- **Achievements**:
-  - **Category Completionist**: Unlock all 10 cards in a specific category (e.g., "Master of Decision")
-  - **Legendary Collector**: Collect all 5 Legendary cards
-  - **Completionist**: Unlock all 50 cards
+- **Card-Related Achievements** (integrated into Mission System):
+  - Tracked as Achievement-type missions
+  - Award bonus points upon completion
+  - Progress automatically updated when cards are obtained
+  - Examples:
+    - "First Card": Collect your first Spark Card (100 points)
+    - "Master of Decision": Complete the Decision category (750 points)
+    - "Legendary Collector": Collect all 3 Legendary cards (2000 points)
+    - "Completionist": Collect all 50 Spark Cards (5000 points)
 
 ### 4. **Library / Tables System**
 Organize repeated activities or data tracking in custom tables.

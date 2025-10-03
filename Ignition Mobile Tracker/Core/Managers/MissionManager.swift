@@ -588,6 +588,129 @@ class MissionManager: ObservableObject {
                 category: nil,
                 difficulty: .expert,
                 customIcon: "rosette"
+            ),
+            
+            // Card Collection Achievements (Achievement type missions)
+            IgnitionMissionModel(
+                title: "First Card",
+                description: "Collect your first Spark Card",
+                type: .achievement,
+                targetCount: 1,
+                rewardPoints: 100,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .easy,
+                customIcon: "rectangle.portrait.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Rare Collector",
+                description: "Collect 5 Rare cards",
+                type: .achievement,
+                targetCount: 5,
+                rewardPoints: 300,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .medium,
+                customIcon: "square.stack.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Epic Hunter",
+                description: "Obtain 1 Epic card",
+                type: .achievement,
+                targetCount: 1,
+                rewardPoints: 500,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .hard,
+                customIcon: "sparkle"
+            ),
+            IgnitionMissionModel(
+                title: "Legendary Status",
+                description: "Obtain your first Legendary card",
+                type: .achievement,
+                targetCount: 1,
+                rewardPoints: 1000,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .expert,
+                customIcon: "crown.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Master of Decision",
+                description: "Complete the Decision category (10 cards)",
+                type: .achievement,
+                targetCount: 10,
+                rewardPoints: 750,
+                expiresAt: nil,
+                category: .decision,
+                difficulty: .hard,
+                customIcon: "checkmark.seal.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Master of Energy",
+                description: "Complete the Energy category (10 cards)",
+                type: .achievement,
+                targetCount: 10,
+                rewardPoints: 750,
+                expiresAt: nil,
+                category: .energy,
+                difficulty: .hard,
+                customIcon: "bolt.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Master of Ideas",
+                description: "Complete the Idea category (10 cards)",
+                type: .achievement,
+                targetCount: 10,
+                rewardPoints: 750,
+                expiresAt: nil,
+                category: .idea,
+                difficulty: .hard,
+                customIcon: "lightbulb.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Master of Experiments",
+                description: "Complete the Experiment category (10 cards)",
+                type: .achievement,
+                targetCount: 10,
+                rewardPoints: 750,
+                expiresAt: nil,
+                category: .experiment,
+                difficulty: .hard,
+                customIcon: "flask.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Master of Challenges",
+                description: "Complete the Challenge category (10 cards)",
+                type: .achievement,
+                targetCount: 10,
+                rewardPoints: 750,
+                expiresAt: nil,
+                category: .challenge,
+                difficulty: .hard,
+                customIcon: "flag.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Legendary Collector",
+                description: "Collect all 3 Legendary cards",
+                type: .achievement,
+                targetCount: 3,
+                rewardPoints: 2000,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .expert,
+                customIcon: "star.circle.fill"
+            ),
+            IgnitionMissionModel(
+                title: "Completionist",
+                description: "Collect all 50 Spark Cards",
+                type: .achievement,
+                targetCount: 50,
+                rewardPoints: 5000,
+                expiresAt: nil,
+                category: nil,
+                difficulty: .expert,
+                customIcon: "trophy.fill"
             )
         ]
         
