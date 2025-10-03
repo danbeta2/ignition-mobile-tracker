@@ -6,9 +6,9 @@
 
 ## 🎯 Executive Summary
 
-L'app presenta una **solida architettura tecnica** con un **sistema di gamification ben implementato**. Il sistema di localizzazione è stato completato (100% inglese) e le API deprecate `onChange` sono state aggiornate. Rimangono alcune **API deprecate critiche** da aggiornare e alcune **inconsistenze UX** che possono confondere l'utente. La struttura del codice è generalmente buona, ma necessita di refactoring in alcune aree per migliorare la manutenibilità a lungo termine.
+L'app presenta una **solida architettura tecnica** con un **sistema di gamification ben implementato**. Il sistema di localizzazione è stato completato (100% inglese) e **tutte le API deprecate iOS 17.0** (`onChange`, `applicationIconBadgeNumber`) sono state aggiornate. Rimangono alcune **inconsistenze UX** che possono confondere l'utente e questioni di gestione Core Data. La struttura del codice è generalmente buona, ma necessita di refactoring in alcune aree per migliorare la manutenibilità a lungo termine.
 
-**Priorità Globale**: 🔴 **5 Critiche** | 🟠 **12 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
+**Priorità Globale**: 🔴 **4 Critiche** | 🟠 **12 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
 
 ---
 
@@ -40,28 +40,27 @@ L'app presenta una **solida architettura tecnica** con un **sistema di gamificat
 
 ---
 
-### 2. **API Deprecate - applicationIconBadgeNumber**
+### 2. ~~**API Deprecate - applicationIconBadgeNumber**~~ ✅ COMPLETATA
 **Gravità**: 🔴 CRITICA  
 **Impatto**: Deprecata da iOS 17.0, deve essere sostituita
 
-**Problema**:
-- `NotificationManager.swift` (linea 389)
-- `PushNotificationService.swift` (linea 99)
+**Status**: ✅ **RISOLTO** - Tutte le 2 occorrenze aggiornate a iOS 17+ API
 
-Uso di `UIApplication.shared.applicationIconBadgeNumber` deprecato.
+**File Corretti**:
+- ✅ `NotificationManager.swift`: Metodo `updateBadgeCount` aggiornato
+- ✅ `PushNotificationService.swift`: Badge handling nelle push notifications aggiornato
 
-**Soluzione**:
+**Implementazione Aggiornata**:
 ```swift
-// ❌ Vecchio
-UIApplication.shared.applicationIconBadgeNumber = count
-
-// ✅ Nuovo
-UNUserNotificationCenter.current().setBadgeCount(count) { error in
-    if let error = error {
-        print("Error setting badge: \(error)")
-    }
-}
+// ✅ Nuovo (iOS 17+)
+try? await UNUserNotificationCenter.current().setBadgeCount(count)
 ```
+
+**Ottimizzazioni Aggiuntive**:
+- Wrapped `registerForRemoteNotifications()` in `MainActor.run` per eliminare warning
+- Error handling con `try?` per gestire gracefully eventuali errori di autorizzazione
+
+**Build**: ✅ SUCCESS - Zero warning di badge deprecato
 
 ---
 

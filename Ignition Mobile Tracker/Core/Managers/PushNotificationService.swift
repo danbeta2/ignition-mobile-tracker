@@ -46,7 +46,9 @@ class PushNotificationService: NSObject, ObservableObject {
         let authorizationGranted = await IgnitionNotificationManager.shared.requestAuthorization()
         
         if authorizationGranted {
-            await UIApplication.shared.registerForRemoteNotifications()
+            await MainActor.run {
+                UIApplication.shared.registerForRemoteNotifications()
+            }
         }
     }
     
@@ -96,7 +98,8 @@ class PushNotificationService: NSObject, ObservableObject {
         // Update badge if needed
         if let badge = aps["badge"] as? Int {
             Task { @MainActor in
-                UIApplication.shared.applicationIconBadgeNumber = badge
+                // Use iOS 17+ API for badge management
+                try? await UNUserNotificationCenter.current().setBadgeCount(badge)
             }
         }
     }

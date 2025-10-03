@@ -95,7 +95,9 @@ class IgnitionNotificationManager: ObservableObject {
     }
     
     private func registerForRemoteNotifications() async {
-        await UIApplication.shared.registerForRemoteNotifications()
+        await MainActor.run {
+            UIApplication.shared.registerForRemoteNotifications()
+        }
     }
     
     // MARK: - Notification Scheduling
@@ -386,7 +388,8 @@ extension IgnitionNotificationManager {
     
     func updateBadgeCount(_ count: Int) {
         Task { @MainActor in
-            UIApplication.shared.applicationIconBadgeNumber = count
+            // Use iOS 17+ API for badge management
+            try? await UNUserNotificationCenter.current().setBadgeCount(count)
         }
     }
     
