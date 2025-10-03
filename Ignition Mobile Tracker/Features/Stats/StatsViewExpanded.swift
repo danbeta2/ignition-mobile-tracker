@@ -143,7 +143,7 @@ struct StatsViewExpanded: View {
             switch self {
             case .line: return "chart.line.uptrend.xyaxis"
             case .bar: return "chart.bar.fill"
-            case .area: return "chart.area.fill"
+            case .area: return "chart.xyaxis.line"
             case .pie: return "chart.pie.fill"
             case .scatter: return "chart.dots.scatter"
             case .heatmap: return "grid.circle.fill"
@@ -167,9 +167,9 @@ struct StatsViewExpanded: View {
             case .trends: return "chart.line.uptrend.xyaxis"
             case .patterns: return "waveform.path"
             case .correlations: return "link"
-            case .predictions: return "crystal.ball"
+            case .predictions: return "sparkles"
             case .comparisons: return "arrow.left.arrow.right"
-            case .goals: return "target"
+            case .goals: return "scope"
             case .insights: return "lightbulb.fill"
             }
         }
@@ -1451,7 +1451,7 @@ struct StatsViewExpanded: View {
                     showingExport = true
                 }
                 
-                Button("Previsioni", systemImage: "crystal.ball") {
+                Button("Previsioni", systemImage: "sparkles") {
                     showingPredictions = true
                 }
                 

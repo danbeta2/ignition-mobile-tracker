@@ -347,7 +347,7 @@ struct HomeView: View {
                     color: .purple
                 ) {
                     audioHapticsManager.uiTapped()
-                    tabRouter.navigate(to: .stats)
+                    showingStats = true
                 }
             }
         }
