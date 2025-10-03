@@ -51,7 +51,22 @@ enum IgnitionLevel: Int, CaseIterable {
     }
     
     var requiredPoints: Int {
-        return rawValue * 1000 // Level 1 = 1000, Level 2 = 2000, etc.
+        // Exponential progression for longevity
+        // Uses formula: basePoints * (multiplier ^ (level - 1))
+        // Base: 500, Multiplier: ~1.8
+        
+        switch self {
+        case .novice: return 0 // Starting point
+        case .apprentice: return 500 // 500 total
+        case .practitioner: return 1400 // ~900 more (500 * 1.8)
+        case .adept: return 2900 // ~1,500 more (900 * 1.8)
+        case .expert: return 5600 // ~2,700 more
+        case .master: return 10500 // ~4,900 more
+        case .grandMaster: return 19300 // ~8,800 more
+        case .legend: return 35100 // ~15,800 more
+        case .titan: return 63500 // ~28,400 more
+        case .mythical: return 114800 // ~51,300 more (ultimate achievement)
+        }
     }
     
     var color: Color {
@@ -85,21 +100,46 @@ enum IgnitionLevel: Int, CaseIterable {
     }
     
     static func level(for points: Int) -> IgnitionLevel {
-        // Find the highest level the user has achieved
-        let levelNumber = min(max(1, points / 1000), 10)
-        return IgnitionLevel(rawValue: levelNumber) ?? .novice
+        // Find the highest level the user has achieved based on total points
+        for level in IgnitionLevel.allCases.reversed() {
+            if points >= level.requiredPoints {
+                return level
+            }
+        }
+        return .novice
     }
     
     static func progress(for points: Int) -> (currentLevel: IgnitionLevel, nextLevel: IgnitionLevel?, progressToNext: Double, pointsNeeded: Int) {
         let current = level(for: points)
         let next = IgnitionLevel(rawValue: current.rawValue + 1)
         
-        let currentLevelPoints = (current.rawValue - 1) * 1000
-        let pointsInCurrentLevel = points - currentLevelPoints
-        let progressToNext = Double(pointsInCurrentLevel) / 1000.0
-        let pointsNeeded = (next?.requiredPoints ?? (current.requiredPoints + 1000)) - points
+        let currentLevelBase = current.requiredPoints
+        let nextLevelRequired = next?.requiredPoints ?? (current.requiredPoints + 100000) // Arbitrary high number for max level
         
-        return (current, next, progressToNext, max(0, pointsNeeded))
+        let pointsInCurrentLevel = points - currentLevelBase
+        let pointsNeededForNextLevel = nextLevelRequired - currentLevelBase
+        
+        let progressToNext: Double
+        if next == nil {
+            // Max level reached
+            progressToNext = 1.0
+        } else {
+            progressToNext = min(1.0, Double(pointsInCurrentLevel) / Double(pointsNeededForNextLevel))
+        }
+        
+        let pointsNeeded = max(0, nextLevelRequired - points)
+        
+        return (current, next, progressToNext, pointsNeeded)
+    }
+    
+    /// Returns the estimated number of sparks needed to reach the next level
+    /// Assumes average spark value of 30 points (medium intensity, average category)
+    static func sparksToNextLevel(currentPoints: Int) -> Int {
+        let (_, nextLevel, _, pointsNeeded) = progress(for: currentPoints)
+        guard nextLevel != nil else { return 0 }
+        
+        let averageSparkValue = 30
+        return Int(ceil(Double(pointsNeeded) / Double(averageSparkValue)))
     }
 }
 

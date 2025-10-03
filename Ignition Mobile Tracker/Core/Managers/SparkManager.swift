@@ -82,6 +82,23 @@ class SparkManager: ObservableObject {
         
         print("✨ Spark added: \(savedSpark.title) - Total sparks: \(self.sparks.count)")
         
+        // Trigger card drop for this spark's category
+        let cardDrop = CardManager.shared.triggerCardDrop(for: savedSpark.category)
+        if let obtainedCard = cardDrop.card {
+            // If a card was obtained, show the reveal animation
+            CardManager.shared.showCardReveal = true
+            
+            // Award bonus points for duplicates
+            if cardDrop.bonusPoints > 0 {
+                print("🎁 Duplicate card bonus: +\(cardDrop.bonusPoints) points")
+                // Notify user profile manager to add bonus points
+                NotificationCenter.default.post(
+                    name: .cardDuplicateObtained,
+                    object: cardDrop.bonusPoints
+                )
+            }
+        }
+        
         // Notify other managers
         NotificationCenter.default.post(name: .sparkAdded, object: savedSpark)
         
@@ -194,4 +211,5 @@ extension Notification.Name {
     static let sparkUpdated = Notification.Name("sparkUpdated")
     static let sparkDeleted = Notification.Name("sparkDeleted")
     static let overloadTriggered = Notification.Name("overloadTriggered")
+    static let cardDuplicateObtained = Notification.Name("cardDuplicateObtained")
 }

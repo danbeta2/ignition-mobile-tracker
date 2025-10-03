@@ -22,6 +22,7 @@ struct Ignition_Mobile_TrackerApp: App {
                 .environmentObject(pushNotificationService)
                 .onAppear {
                     setupNotifications()
+                    initializeCardCollection()
                 }
         }
     }
@@ -38,6 +39,14 @@ struct Ignition_Mobile_TrackerApp: App {
             let userProfile = persistenceController.getOrCreateUserProfile()
             await notificationManager.scheduleSmartReminders(based: userProfile)
             await pushNotificationService.scheduleIntelligentNotifications(for: userProfile)
+        }
+    }
+    
+    private func initializeCardCollection() {
+        Task {
+            await MainActor.run {
+                CardManager.shared.initializeCardCollection()
+            }
         }
     }
 }

@@ -29,6 +29,16 @@
         <attribute name="type" optional="NO" attributeType="String"/>
         <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDUserProfile" inverseName="missions" inverseEntity="CDUserProfile"/>
     </entity>
+    <entity name="CDSparkCard" representedClassName="CDSparkCard" syncable="YES" codeGenerationType="class">
+        <attribute name="category" optional="NO" attributeType="String"/>
+        <attribute name="id" optional="NO" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isOwned" optional="NO" attributeType="Boolean" defaultValue="NO" usesScalarValueType="YES"/>
+        <attribute name="name" optional="NO" attributeType="String"/>
+        <attribute name="obtainedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="ownedCount" optional="NO" attributeType="Integer 32" defaultValue="0" usesScalarValueType="YES"/>
+        <attribute name="rarity" optional="NO" attributeType="String"/>
+        <relationship name="userProfile" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDUserProfile" inverseName="sparkCards" inverseEntity="CDUserProfile"/>
+    </entity>
     <entity name="CDUserProfile" representedClassName="CDUserProfile" syncable="YES" codeGenerationType="class">
         <attribute name="challengeSparks" optional="NO" attributeType="Integer 32" defaultValue="0" usesScalarValueType="YES"/>
         <attribute name="createdAt" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
@@ -51,6 +61,7 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="username" optional="NO" attributeType="String" defaultValue="User"/>
         <relationship name="missions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDMission" inverseName="userProfile" inverseEntity="CDMission"/>
+        <relationship name="sparkCards" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDSparkCard" inverseName="userProfile" inverseEntity="CDSparkCard"/>
         <relationship name="sparks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDSpark" inverseName="userProfile" inverseEntity="CDSpark"/>
         <relationship name="tables" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDTable" inverseName="userProfile" inverseEntity="CDTable"/>
     </entity>

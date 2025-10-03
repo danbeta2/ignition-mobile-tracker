@@ -338,3 +338,37 @@ extension CDEntry {
         )
     }
 }
+
+// MARK: - CDSparkCard Extensions
+extension CDSparkCard {
+    
+    var cardCategory: SparkCategory {
+        get {
+            return SparkCategory(rawValue: category ?? "energy") ?? .energy
+        }
+        set {
+            category = newValue.rawValue
+        }
+    }
+    
+    var cardRarity: CardRarity {
+        get {
+            return CardRarity(rawValue: rarity ?? "common") ?? .common
+        }
+        set {
+            rarity = newValue.rawValue
+        }
+    }
+    
+    func toSparkCardModel() -> SparkCardModel {
+        return SparkCardModel(
+            id: id ?? UUID(),
+            name: name ?? "",
+            category: cardCategory,
+            rarity: cardRarity,
+            isOwned: isOwned,
+            ownedCount: Int(ownedCount),
+            obtainedAt: obtainedAt
+        )
+    }
+}

@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var sparkManager = SparkManager.shared
     @StateObject private var userProfileManager = UserProfileManager.shared
+    @StateObject private var cardManager = CardManager.shared
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @Environment(\.themeManager) private var themeManager
     @Environment(\.tabRouter) private var tabRouter
@@ -20,6 +21,7 @@ struct HomeView: View {
     @State private var showingSettings = false
     @State private var selectedSparkForDetails: SparkModel?
     @State private var showingSparkDetail = false
+    @State private var showingCardCollection = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -44,8 +46,8 @@ struct HomeView: View {
                     ignitionCoreSection
                         .padding(.horizontal, IgnitionSpacing.md)
                     
-                    // Recent Activity
-                    recentActivitySection
+                    // Spark Cards Collection
+                    sparkCardsSection
                         .padding(.horizontal, IgnitionSpacing.md)
                     
                     Spacer(minLength: IgnitionSpacing.xl)
@@ -72,6 +74,14 @@ struct HomeView: View {
         .sheet(isPresented: $showingSparkDetail) {
             if let spark = selectedSparkForDetails {
                 SparkDetailView(spark: spark)
+            }
+        }
+        .sheet(isPresented: $showingCardCollection) {
+            CardCollectionView()
+        }
+        .fullScreenCover(isPresented: $cardManager.showCardReveal) {
+            if let card = cardManager.lastObtainedCard {
+                CardRevealView(card: card, isPresented: $cardManager.showCardReveal)
             }
         }
     }
@@ -401,31 +411,178 @@ struct HomeView: View {
         }
     }
     
-    // MARK: - Recent Activity Section
-    private var recentActivitySection: some View {
+    // MARK: - Spark Cards Section
+    private var sparkCardsSection: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
             HStack {
-                Text("Recent Activity")
-                    .font(IgnitionFonts.title3)
-                    .foregroundColor(themeManager.textColor)
+                HStack(spacing: IgnitionSpacing.xs) {
+                    Image(systemName: "rectangle.stack.fill")
+                        .foregroundColor(IgnitionColors.goldAccent)
+                        .font(.system(size: 20))
+                    
+                    Text("Spark Cards")
+                        .font(IgnitionFonts.title3)
+                        .foregroundColor(themeManager.textColor)
+                }
                 
                 Spacer()
                 
-                Button("View All") {
-                    tabRouter.selectTab(.tracker)
+                Button("View Collection") {
+                    showingCardCollection = true
+                    audioHapticsManager.uiTapped()
                 }
                 .font(IgnitionFonts.callout)
                 .foregroundColor(themeManager.primaryColor)
             }
             
-            if sparkManager.sparks.isEmpty {
-                emptyStateView
-            } else {
-                ForEach(Array(sparkManager.sparks.prefix(3)), id: \.id) { spark in
-                    recentSparkCard(spark)
+            // Collection stats and rarest cards
+            VStack(spacing: IgnitionSpacing.md) {
+                // Stats bar
+                HStack(spacing: IgnitionSpacing.lg) {
+                    // Total owned
+                    VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
+                        Text("\(cardManager.ownedCardsCount)/50")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .goldGlow(radius: 4)
+                        
+                        Text("Cards Unlocked")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(IgnitionColors.secondaryText)
+                    }
+                    
+                    Spacer()
+                    
+                    // Progress circle
+                    ZStack {
+                        Circle()
+                            .stroke(IgnitionColors.darkGray, lineWidth: 6)
+                            .frame(width: 60, height: 60)
+                        
+                        Circle()
+                            .trim(from: 0, to: cardManager.completionPercentage)
+                            .stroke(
+                                AngularGradient(
+                                    colors: [IgnitionColors.ignitionOrange, IgnitionColors.goldAccent, IgnitionColors.ignitionOrange],
+                                    center: .center
+                                ),
+                                style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                            )
+                            .frame(width: 60, height: 60)
+                            .rotationEffect(.degrees(-90))
+                        
+                        Text("\(Int(cardManager.completionPercentage * 100))%")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                // 3 Rarest cards
+                if !cardManager.rarestOwnedCards.isEmpty {
+                    HStack(spacing: IgnitionSpacing.sm) {
+                        ForEach(cardManager.rarestOwnedCards, id: \.id) { card in
+                            miniCardView(card)
+                        }
+                        
+                        // Fill empty slots
+                        ForEach(0..<(3 - cardManager.rarestOwnedCards.count), id: \.self) { _ in
+                            emptyMiniCardView
+                        }
+                    }
+                } else {
+                    // All empty slots
+                    HStack(spacing: IgnitionSpacing.sm) {
+                        ForEach(0..<3, id: \.self) { _ in
+                            emptyMiniCardView
+                        }
+                    }
                 }
             }
+            .padding(IgnitionSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: IgnitionRadius.lg)
+                    .fill(themeManager.cardColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: IgnitionRadius.lg)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [IgnitionColors.goldAccent.opacity(0.3), IgnitionColors.ignitionOrange.opacity(0.3)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 2
+                            )
+                    )
+            )
+            .shadow(color: IgnitionShadow.large, radius: 10, x: 0, y: 5)
         }
+    }
+    
+    private func miniCardView(_ card: SparkCardModel) -> some View {
+        ZStack {
+            // Card background
+            RoundedRectangle(cornerRadius: IgnitionRadius.sm)
+                .fill(IgnitionColors.ignitionBlack)
+                .overlay(
+                    RoundedRectangle(cornerRadius: IgnitionRadius.sm)
+                        .stroke(card.rarity.color, lineWidth: 2)
+                )
+            
+            // Card image or icon
+            if let _ = UIImage(named: card.assetName) {
+                Image(card.assetName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 100, height: 140)
+                    .clipped()
+                    .cornerRadius(IgnitionRadius.sm)
+            } else {
+                VStack(spacing: IgnitionSpacing.xs) {
+                    Image(systemName: card.category.iconName)
+                        .font(.system(size: 30))
+                        .foregroundColor(card.category.color)
+                    
+                    Text(card.displayTitle)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .padding(.horizontal, 4)
+                }
+            }
+            
+            // Rarity indicator
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    Circle()
+                        .fill(card.rarity.color)
+                        .frame(width: 18, height: 18)
+                        .padding(4)
+                }
+                
+                Spacer()
+            }
+        }
+        .frame(width: 100, height: 140)
+        .shadow(color: card.rarity.glowColor, radius: 6, x: 0, y: 0)
+    }
+    
+    private var emptyMiniCardView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: IgnitionRadius.sm)
+                .fill(IgnitionColors.darkGray)
+                .overlay(
+                    RoundedRectangle(cornerRadius: IgnitionRadius.sm)
+                        .stroke(IgnitionColors.mediumGray.opacity(0.3), lineWidth: 2)
+                        .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                )
+            
+            Image(systemName: "questionmark")
+                .font(.system(size: 30))
+                .foregroundColor(IgnitionColors.mediumGray.opacity(0.5))
+        }
+        .frame(width: 100, height: 140)
     }
     
     private var emptyStateView: some View {

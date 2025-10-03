@@ -177,4 +177,10 @@ class AudioHapticsManager: ObservableObject {
         playNotificationHaptic(.success)
         playHaptic(.heavy)
     }
+    
+    func cardRevealed() {
+        playSound(.sparkAdd) // Reusing spark add sound for now
+        playNotificationHaptic(.success)
+        playHaptic(.heavy)
+    }
 }

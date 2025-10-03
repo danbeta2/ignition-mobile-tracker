@@ -557,4 +557,140 @@ extension PersistenceController {
             print("🗑️ Deleted entry from Core Data")
         }
     }
+    
+    // MARK: - Spark Card Operations
+    
+    func createSparkCard(
+        name: String,
+        category: SparkCategory,
+        rarity: CardRarity
+    ) -> SparkCardModel {
+        let cdCard = CDSparkCard(context: context)
+        
+        cdCard.id = UUID()
+        cdCard.name = name
+        cdCard.category = category.rawValue
+        cdCard.rarity = rarity.rawValue
+        cdCard.isOwned = false
+        cdCard.ownedCount = 0
+        cdCard.obtainedAt = nil
+        
+        // Associate with user profile
+        if let userProfile = getCDUserProfile() {
+            cdCard.userProfile = userProfile
+        }
+        
+        save()
+        print("✨ Created spark card in Core Data: \(name) (\(rarity.rawValue))")
+        
+        return cdCard.toSparkCardModel()
+    }
+    
+    func fetchAllSparkCards() -> [SparkCardModel] {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "rarity", ascending: false),
+            NSSortDescriptor(key: "name", ascending: true)
+        ]
+        
+        let cdCards = fetch(request)
+        return cdCards.map { $0.toSparkCardModel() }
+    }
+    
+    func fetchSparkCard(by id: UUID) -> SparkCardModel? {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        if let cdCard = try? context.fetch(request).first {
+            return cdCard.toSparkCardModel()
+        }
+        return nil
+    }
+    
+    func fetchSparkCards(byCategory category: SparkCategory) -> [SparkCardModel] {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "category == %@", category.rawValue)
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "rarity", ascending: false),
+            NSSortDescriptor(key: "name", ascending: true)
+        ]
+        
+        let cdCards = fetch(request)
+        return cdCards.map { $0.toSparkCardModel() }
+    }
+    
+    func fetchSparkCards(byRarity rarity: CardRarity) -> [SparkCardModel] {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "rarity == %@", rarity.rawValue)
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        let cdCards = fetch(request)
+        return cdCards.map { $0.toSparkCardModel() }
+    }
+    
+    func fetchOwnedSparkCards() -> [SparkCardModel] {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "isOwned == YES")
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "rarity", ascending: false),
+            NSSortDescriptor(key: "obtainedAt", ascending: false)
+        ]
+        
+        let cdCards = fetch(request)
+        return cdCards.map { $0.toSparkCardModel() }
+    }
+    
+    func updateSparkCard(_ cardModel: SparkCardModel) {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", cardModel.id as CVarArg)
+        
+        if let cdCard = try? context.fetch(request).first {
+            cdCard.isOwned = cardModel.isOwned
+            cdCard.ownedCount = Int32(cardModel.ownedCount)
+            cdCard.obtainedAt = cardModel.obtainedAt
+            
+            save()
+            print("✅ Updated spark card in Core Data: \(cardModel.name)")
+        }
+    }
+    
+    func obtainSparkCard(cardId: UUID) -> (isNew: Bool, duplicatePoints: Int) {
+        let request: NSFetchRequest<CDSparkCard> = CDSparkCard.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", cardId as CVarArg)
+        
+        guard let cdCard = try? context.fetch(request).first else {
+            return (false, 0)
+        }
+        
+        let wasNew = !cdCard.isOwned
+        
+        if wasNew {
+            cdCard.isOwned = true
+            cdCard.obtainedAt = Date()
+        }
+        
+        cdCard.ownedCount += 1
+        
+        save()
+        
+        let rarity = CardRarity(rawValue: cdCard.rarity ?? "common") ?? .common
+        let duplicatePoints = wasNew ? 0 : rarity.duplicatePoints
+        
+        print(wasNew ? "✨ New spark card obtained: \(cdCard.name ?? "")" : "🔄 Duplicate card obtained: +\(duplicatePoints) points")
+        
+        return (wasNew, duplicatePoints)
+    }
+    
+    func deleteAllSparkCards() {
+        let request: NSFetchRequest<NSFetchRequestResult> = CDSparkCard.fetchRequest()
+        let batchDelete = NSBatchDeleteRequest(fetchRequest: request)
+        
+        do {
+            try context.execute(batchDelete)
+            try context.save()
+            print("🗑️ Deleted all spark cards")
+        } catch {
+            print("❌ Failed to delete spark cards: \(error)")
+        }
+    }
 }

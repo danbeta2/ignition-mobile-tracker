@@ -495,5 +495,108 @@ struct UserProfileModel: Identifiable, Codable {
     }
 }
 
+// MARK: - Spark Card Models
+
+enum CardRarity: String, CaseIterable, Codable, Comparable {
+    case common = "common"
+    case rare = "rare"
+    case epic = "epic"
+    case legendary = "legendary"
+    
+    var displayName: String {
+        switch self {
+        case .common: return "Common"
+        case .rare: return "Rare"
+        case .epic: return "Epic"
+        case .legendary: return "Legendary"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .common: return Color.gray
+        case .rare: return Color.blue
+        case .epic: return Color.purple
+        case .legendary: return Color(red: 1.0, green: 0.72, blue: 0.0) // Gold
+        }
+    }
+    
+    var glowColor: Color {
+        switch self {
+        case .common: return Color.gray.opacity(0.5)
+        case .rare: return Color.blue.opacity(0.7)
+        case .epic: return Color.purple.opacity(0.8)
+        case .legendary: return Color(red: 1.0, green: 0.72, blue: 0.0).opacity(0.9)
+        }
+    }
+    
+    // Drop rate percentages
+    var dropRate: Double {
+        switch self {
+        case .common: return 0.60 // 60%
+        case .rare: return 0.30 // 30%
+        case .epic: return 0.08 // 8%
+        case .legendary: return 0.02 // 2%
+        }
+    }
+    
+    // Bonus points when obtaining a duplicate
+    var duplicatePoints: Int {
+        switch self {
+        case .common: return 10
+        case .rare: return 25
+        case .epic: return 50
+        case .legendary: return 100
+        }
+    }
+    
+    // Comparable conformance for sorting by rarity
+    static func < (lhs: CardRarity, rhs: CardRarity) -> Bool {
+        let order: [CardRarity] = [.common, .rare, .epic, .legendary]
+        guard let lhsIndex = order.firstIndex(of: lhs),
+              let rhsIndex = order.firstIndex(of: rhs) else {
+            return false
+        }
+        return lhsIndex < rhsIndex
+    }
+}
+
+struct SparkCardModel: Identifiable, Codable, Hashable {
+    let id: UUID
+    let name: String // e.g., "flame", "bolt", "lightbulb"
+    let category: SparkCategory
+    let rarity: CardRarity
+    var isOwned: Bool
+    var ownedCount: Int // How many times the user obtained this card
+    let obtainedAt: Date? // First time obtained
+    
+    // Asset name derived from properties
+    var assetName: String {
+        return "spark-card-\(category.rawValue)-\(name)-\(rarity.rawValue)"
+    }
+    
+    var displayTitle: String {
+        return name.capitalized
+    }
+    
+    init(
+        id: UUID = UUID(),
+        name: String,
+        category: SparkCategory,
+        rarity: CardRarity,
+        isOwned: Bool = false,
+        ownedCount: Int = 0,
+        obtainedAt: Date? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.category = category
+        self.rarity = rarity
+        self.isOwned = isOwned
+        self.ownedCount = ownedCount
+        self.obtainedAt = obtainedAt
+    }
+}
+
 // MARK: - Core Data Extensions
 // TODO: Add these extensions when Core Data model is properly set up
