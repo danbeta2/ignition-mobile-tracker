@@ -1068,12 +1068,12 @@ struct TrackerViewExpanded: View {
     
     private func formatDateForTimeline(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         
         if Calendar.current.isDateInToday(date) {
-            return "Oggi"
+            return "Today"
         } else if Calendar.current.isDateInYesterday(date) {
-            return "Ieri"
+            return "Yesterday"
         } else if Calendar.current.isDate(date, equalTo: Date(), toGranularity: .weekOfYear) {
             formatter.dateFormat = "EEEE"
             return formatter.string(from: date)

@@ -2,6 +2,11 @@
 
 A comprehensive iOS productivity tracking application built with SwiftUI and Core Data, designed to help users capture, organize, and gamify their personal growth journey through "Sparks" of inspiration, action, and achievement.
 
+**Language**: English (fully localized)  
+**Platform**: iOS 17.0+  
+**Framework**: SwiftUI, Core Data  
+**Status**: Production-ready (v1.0.0)
+
 ## Overview
 
 Ignition Mobile Tracker transforms daily productivity into an engaging experience by combining task tracking with gaming elements. Users record "Sparks" (moments of insight, decision, energy, experimentation, or challenge), complete missions, collect cards, and progress through a leveling system.

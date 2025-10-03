@@ -53,12 +53,12 @@ struct StatsViewExpanded: View {
     
     // MARK: - Enums
     enum TimeRange: String, CaseIterable {
-        case day = "Giorno"
-        case week = "Settimana"
-        case month = "Mese"
-        case quarter = "Trimestre"
-        case year = "Anno"
-        case custom = "Personalizzato"
+        case day = "Day"
+        case week = "Week"
+        case month = "Month"
+        case quarter = "Quarter"
+        case year = "Year"
+        case custom = "Custom"
         
         var icon: String {
             switch self {
@@ -95,14 +95,14 @@ struct StatsViewExpanded: View {
     }
     
     enum MetricType: String, CaseIterable {
-        case sparks = "Spark"
-        case points = "Punti"
-        case intensity = "Intensità"
-        case categories = "Categorie"
-        case missions = "Missioni"
-        case streaks = "Streak"
-        case fuel = "Carburante"
-        case productivity = "Produttività"
+        case sparks = "Sparks"
+        case points = "Points"
+        case intensity = "Intensity"
+        case categories = "Categories"
+        case missions = "Missions"
+        case streaks = "Streaks"
+        case fuel = "Fuel"
+        case productivity = "Productivity"
         
         var icon: String {
             switch self {
@@ -132,12 +132,12 @@ struct StatsViewExpanded: View {
     }
     
     enum ChartType: String, CaseIterable {
-        case line = "Linea"
-        case bar = "Barre"
+        case line = "Line"
+        case bar = "Bar"
         case area = "Area"
-        case pie = "Torta"
-        case scatter = "Dispersione"
-        case heatmap = "Mappa Calore"
+        case pie = "Pie"
+        case scatter = "Scatter"
+        case heatmap = "Heatmap"
         
         var icon: String {
             switch self {
@@ -152,13 +152,13 @@ struct StatsViewExpanded: View {
     }
     
     enum AnalysisType: String, CaseIterable {
-        case overview = "Panoramica"
-        case trends = "Tendenze"
-        case patterns = "Pattern"
-        case correlations = "Correlazioni"
-        case predictions = "Previsioni"
-        case comparisons = "Confronti"
-        case goals = "Obiettivi"
+        case overview = "Overview"
+        case trends = "Trends"
+        case patterns = "Patterns"
+        case correlations = "Correlations"
+        case predictions = "Predictions"
+        case comparisons = "Comparisons"
+        case goals = "Goals"
         case insights = "Insights"
         
         var icon: String {
@@ -176,10 +176,10 @@ struct StatsViewExpanded: View {
     }
     
     enum ComparisonPeriod: String, CaseIterable {
-        case previousPeriod = "Periodo Precedente"
-        case sameLastYear = "Stesso Periodo Anno Scorso"
-        case average = "Media Storica"
-        case custom = "Personalizzato"
+        case previousPeriod = "Previous Period"
+        case sameLastYear = "Same Period Last Year"
+        case average = "Historical Average"
+        case custom = "Custom"
     }
     
     // MARK: - Computed Properties
@@ -893,7 +893,7 @@ struct StatsViewExpanded: View {
     // MARK: - Predictions Section
     private var predictionsSection: some View {
         VStack(spacing: IgnitionSpacing.lg) {
-            Text("Previsioni e Proiezioni")
+            Text("Predictions and Projections")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -923,7 +923,7 @@ struct StatsViewExpanded: View {
     // MARK: - Goals Section
     private var goalsSection: some View {
         VStack(spacing: IgnitionSpacing.lg) {
-            Text("Obiettivi e Progressi")
+            Text("Goals and Progress")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -1354,11 +1354,11 @@ struct StatsViewExpanded: View {
     
     private var goalsProgressView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Progresso Obiettivi")
+            Text("Goals Progress")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("I progressi degli obiettivi saranno mostrati qui")
+            Text("Goal progress will be displayed here")
                 .font(.body)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -1369,11 +1369,11 @@ struct StatsViewExpanded: View {
     
     private var goalRecommendationsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Raccomandazioni Obiettivi")
+            Text("Goals Recommendations")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("Le raccomandazioni per nuovi obiettivi saranno mostrate qui")
+            Text("Recommendations for new goals will be displayed here")
                 .font(.body)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -1443,19 +1443,19 @@ struct StatsViewExpanded: View {
     private var trailingToolbarItems: some View {
         HStack {
             Menu {
-                Button("Report Personalizzato", systemImage: "doc.text") {
+                Button("Custom Report", systemImage: "doc.text") {
                     showingCustomReport = true
                 }
                 
-                Button("Esporta Dati", systemImage: "square.and.arrow.up") {
+                Button("Export Data", systemImage: "square.and.arrow.up") {
                     showingExport = true
                 }
                 
-                Button("Previsioni", systemImage: "sparkles") {
+                Button("Predictions", systemImage: "sparkles") {
                     showingPredictions = true
                 }
                 
-                Button("Obiettivi", systemImage: "target") {
+                Button("Goals", systemImage: "scope") {
                     showingGoals = true
                 }
             } label: {
@@ -1827,12 +1827,12 @@ struct InsightData: Identifiable {
     let value: String?
     
     enum InsightType: String {
-        case trend = "Tendenza"
+        case trend = "Trend"
         case pattern = "Pattern"
-        case correlation = "Correlazione"
-        case recommendation = "Raccomandazione"
-        case anomaly = "Anomalia"
-        case achievement = "Traguardo"
+        case correlation = "Correlation"
+        case recommendation = "Recommendation"
+        case anomaly = "Anomaly"
+        case achievement = "Achievement"
     }
 }
 
@@ -1903,16 +1903,16 @@ struct ExportAnalyticsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Esporta Analytics")
+                Text("Export Analytics")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verrà implementata l'esportazione dei dati analytics")
+                Text("Analytics data export will be implemented here")
                     .foregroundColor(.secondary)
                 
                 Spacer()
             }
-            .navigationTitle("Esporta")
+            .navigationTitle("Export")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -1922,16 +1922,16 @@ struct ComparisonAnalyticsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Confronti Analytics")
+                Text("Analytics Comparison")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verranno implementati i confronti temporali")
+                Text("Temporal comparisons will be implemented here")
                     .foregroundColor(.secondary)
                 
                 Spacer()
             }
-            .navigationTitle("Confronti")
+            .navigationTitle("Comparisons")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -1943,16 +1943,16 @@ struct PredictiveAnalyticsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Analytics Predittive")
+                Text("Predictive Analytics")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verranno mostrate le previsioni dettagliate")
+                Text("Detailed predictions will be displayed here")
                     .foregroundColor(.secondary)
                 
                 Spacer()
             }
-            .navigationTitle("Previsioni")
+            .navigationTitle("Predictions")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -1962,16 +1962,16 @@ struct GoalsAnalyticsView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Analytics Obiettivi")
+                Text("Goals Analytics")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verranno gestiti gli obiettivi e i progressi")
+                Text("Goals and progress will be managed here")
                     .foregroundColor(.secondary)
                 
                 Spacer()
             }
-            .navigationTitle("Obiettivi")
+            .navigationTitle("Goals")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -2002,11 +2002,11 @@ struct CustomReportView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Report Personalizzato")
+                Text("Custom Report")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verrà implementato il generatore di report personalizzati")
+                Text("Custom report generator will be implemented here")
                     .foregroundColor(.secondary)
                 
                 Spacer()

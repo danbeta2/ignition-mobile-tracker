@@ -1031,17 +1031,17 @@ struct HomeViewExpanded: View {
     private var greetingMessage: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
-        case 5..<12: return "Buongiorno"
-        case 12..<17: return "Buon pomeriggio"
-        case 17..<22: return "Buonasera"
-        default: return "Buonanotte"
+        case 5..<12: return "Good Morning"
+        case 12..<17: return "Good Afternoon"
+        case 17..<22: return "Good Evening"
+        default: return "Good Night"
         }
     }
     
     private var currentDateString: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .full
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         return formatter.string(from: Date())
     }
     
