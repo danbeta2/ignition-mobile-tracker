@@ -21,7 +21,7 @@ struct SettingsView: View {
                     Toggle(isOn: $themeManager.isDarkMode) {
                         Label("Dark Mode", systemImage: "moon.fill")
                     }
-                    .onChange(of: themeManager.isDarkMode) { newValue in
+                    .onChange(of: themeManager.isDarkMode) { _, newValue in
                         themeManager.updateDarkMode(newValue)
                         audioHapticsManager.uiTapped()
                     }
@@ -30,7 +30,7 @@ struct SettingsView: View {
                     Toggle(isOn: $themeManager.isColorBlindFriendly) {
                         Label("Color Blind Mode", systemImage: "eye.fill")
                     }
-                    .onChange(of: themeManager.isColorBlindFriendly) { newValue in
+                    .onChange(of: themeManager.isColorBlindFriendly) { _, newValue in
                         themeManager.updateColorBlindFriendly(newValue)
                         audioHapticsManager.uiTapped()
                     }
@@ -44,7 +44,7 @@ struct SettingsView: View {
                                 .font(.caption)
                             
                             Slider(value: $themeManager.fontScale, in: 0.8...1.5, step: 0.1)
-                                .onChange(of: themeManager.fontScale) { newValue in
+                                .onChange(of: themeManager.fontScale) { _, newValue in
                                     themeManager.updateFontScale(newValue)
                                 }
                             
@@ -59,14 +59,14 @@ struct SettingsView: View {
                     Toggle(isOn: $audioHapticsManager.soundEnabled) {
                         Label("Sound Effects", systemImage: "speaker.wave.2.fill")
                     }
-                    .onChange(of: audioHapticsManager.soundEnabled) { _ in
+                    .onChange(of: audioHapticsManager.soundEnabled) { _, _ in
                         audioHapticsManager.uiTapped()
                     }
                     
                     Toggle(isOn: $audioHapticsManager.hapticsEnabled) {
                         Label("Haptic Feedback", systemImage: "hand.tap.fill")
                     }
-                    .onChange(of: audioHapticsManager.hapticsEnabled) { _ in
+                    .onChange(of: audioHapticsManager.hapticsEnabled) { _, _ in
                         audioHapticsManager.uiTapped()
                     }
                     
@@ -75,7 +75,7 @@ struct SettingsView: View {
                             Label("Volume", systemImage: "speaker.fill")
                             
                             Slider(value: $audioHapticsManager.soundVolume, in: 0...1)
-                                .onChange(of: audioHapticsManager.soundVolume) { _ in
+                                .onChange(of: audioHapticsManager.soundVolume) { _, _ in
                                     audioHapticsManager.playSelectionHaptic()
                                 }
                         }
@@ -87,7 +87,7 @@ struct SettingsView: View {
                     Toggle(isOn: $themeManager.reduceMotion) {
                         Label("Reduce Motion", systemImage: "figure.walk")
                     }
-                    .onChange(of: themeManager.reduceMotion) { newValue in
+                    .onChange(of: themeManager.reduceMotion) { _, newValue in
                         themeManager.updateReduceMotion(newValue)
                         audioHapticsManager.uiTapped()
                     }

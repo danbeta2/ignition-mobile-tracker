@@ -75,10 +75,10 @@ struct NotificationSettingsView: View {
                             .padding(.leading, IgnitionSpacing.md)
                         }
                     }
-                    .onChange(of: dailyReminderEnabled) { enabled in
+                    .onChange(of: dailyReminderEnabled) { _, enabled in
                         updateDailyReminder(enabled: enabled)
                     }
-                    .onChange(of: dailyReminderTime) { time in
+                    .onChange(of: dailyReminderTime) { _, _ in
                         if dailyReminderEnabled {
                             updateDailyReminder(enabled: true)
                         }
@@ -86,19 +86,19 @@ struct NotificationSettingsView: View {
                     
                     Toggle("Protezione Streak", isOn: $streakRemindersEnabled)
                         .font(IgnitionFonts.body)
-                        .onChange(of: streakRemindersEnabled) { enabled in
+                        .onChange(of: streakRemindersEnabled) { _, enabled in
                             updateStreakReminders(enabled: enabled)
                         }
                     
                     Toggle("Scadenze Missioni", isOn: $missionDeadlinesEnabled)
                         .font(IgnitionFonts.body)
-                        .onChange(of: missionDeadlinesEnabled) { enabled in
+                        .onChange(of: missionDeadlinesEnabled) { _, enabled in
                             updateMissionDeadlines(enabled: enabled)
                         }
                     
                     Toggle("Report Settimanali", isOn: $weeklyReportsEnabled)
                         .font(IgnitionFonts.body)
-                        .onChange(of: weeklyReportsEnabled) { enabled in
+                        .onChange(of: weeklyReportsEnabled) { _, enabled in
                             updateWeeklyReports(enabled: enabled)
                         }
                     
@@ -129,7 +129,7 @@ struct NotificationSettingsView: View {
                             .padding(.leading, IgnitionSpacing.md)
                         }
                     }
-                    .onChange(of: pushNotificationsEnabled) { enabled in
+                    .onChange(of: pushNotificationsEnabled) { _, enabled in
                         updatePushNotifications(enabled: enabled)
                     }
                     

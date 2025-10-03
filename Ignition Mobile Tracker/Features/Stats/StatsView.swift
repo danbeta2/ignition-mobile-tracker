@@ -53,7 +53,7 @@ struct StatsView: View {
         } message: {
             Text(sparkManager.error ?? "Si è verificato un errore imprevisto")
         }
-        .onChange(of: sparkManager.error) { error in
+        .onChange(of: sparkManager.error) { _, error in
             showingError = error != nil
         }
     }
@@ -68,7 +68,7 @@ struct StatsView: View {
         .pickerStyle(SegmentedPickerStyle())
         .background(themeManager.cardColor)
         .cornerRadius(IgnitionRadius.sm)
-        .onChange(of: selectedTimeRange) { _ in
+        .onChange(of: selectedTimeRange) { _, _ in
             audioHapticsManager.playSelectionHaptic()
         }
     }

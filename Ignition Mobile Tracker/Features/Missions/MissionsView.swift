@@ -58,7 +58,7 @@ struct MissionsView: View {
             } message: {
                 Text(missionManager.error ?? "An unexpected error occurred")
             }
-                .onChange(of: missionManager.error) { error in
+                .onChange(of: missionManager.error) { _, error in
                     showingError = error != nil
                 }
             }

@@ -57,7 +57,7 @@ struct TrackerView: View {
             } message: {
                 Text(sparkManager.error ?? "Si è verificato un errore imprevisto")
             }
-            .onChange(of: sparkManager.error) { error in
+            .onChange(of: sparkManager.error) { _, error in
                 showingError = error != nil
             }
             .onAppear {

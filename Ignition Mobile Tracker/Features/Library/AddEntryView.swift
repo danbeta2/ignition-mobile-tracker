@@ -82,7 +82,7 @@ struct AddEntryView: View {
                     }
                 }
             }
-            .onChange(of: selectedPhotos) { newValue in
+            .onChange(of: selectedPhotos) { _, newValue in
                 Task {
                     await photoManager.processSelectedPhotos(newValue)
                     selectedPhotos = []
