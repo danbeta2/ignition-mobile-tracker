@@ -16,8 +16,13 @@ class PersistenceController {
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "IgnitionTracker")
         
-        // Configure for better performance
+        // Configure store description with migration options
         container.persistentStoreDescriptions.forEach { storeDescription in
+            // Enable automatic lightweight migration
+            storeDescription.setOption(true as NSNumber, forKey: NSMigratePersistentStoresAutomaticallyOption)
+            storeDescription.setOption(true as NSNumber, forKey: NSInferMappingModelAutomaticallyOption)
+            
+            // Performance optimizations
             storeDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
             storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
         }
