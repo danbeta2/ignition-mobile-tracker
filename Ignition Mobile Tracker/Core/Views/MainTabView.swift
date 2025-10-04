@@ -13,6 +13,8 @@ struct MainTabView: View {
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @StateObject private var errorManager = ErrorManager.shared
     
+    @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    
     var body: some View {
         NavigationStack(path: $tabRouter.navigationPath) {
             TabView(selection: $tabRouter.selectedTab) {
@@ -73,6 +75,9 @@ struct MainTabView: View {
                 }
             } message: {
                 Text(errorManager.currentError?.message ?? "An unexpected error occurred.")
+            }
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingView(isPresented: $showOnboarding)
             }
         }
     }
