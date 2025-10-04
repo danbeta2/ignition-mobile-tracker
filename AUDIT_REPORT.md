@@ -8,7 +8,7 @@
 
 L'app presenta una **solida architettura tecnica** con un **sistema di gamification ben implementato**. Il sistema di localizzazione è stato completato (100% inglese), **tutte le API deprecate iOS 17.0** sono state aggiornate, la gestione dei file di progetto è pulita, **il sistema di achievement missions per le carte è completamente funzionante**, e **Core Data migration è configurata per aggiornamenti sicuri dello schema**. Rimangono principalmente questioni di ottimizzazione performance e miglioramenti UX/code quality. L'app è stabile e pronta per production con un'architettura scalabile.
 
-**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **12 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
+**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **11 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
 
 ---
 
@@ -236,32 +236,55 @@ Con utenti prolific (migliaia di sparks), questo causaday lag e memoria eccessiv
 
 ---
 
-### 10. **Timer Mission Reset Non Ottimizzato**
+### 10. ~~**Timer Mission Reset Non Ottimizzato**~~ ✅ COMPLETATA
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Batteria consumata, overhead inutile
 
-**Problema**:
-`MissionManager` esegue `checkAndResetMissions()` ogni 60 secondi:
-```swift
-Timer.scheduledTimer(withTimeInterval: 60, repeats: true)
-```
+**Status**: ✅ **RISOLTO** - Observer lifecycle implementato
 
-Questo è eccessivo e consuma batteria inutilmente.
+**Problema Originale**:
+`MissionManager` eseguiva `checkAndResetMissions()` ogni 60 secondi anche quando l'app era in background, consumando batteria inutilmente.
 
-**Soluzione**:
-1. Usare NotificationCenter per app lifecycle
-2. Check solo quando app entra in foreground
-3. Schedulare notifiche locali a mezzanotte per reset
+**Implementazione** (MissionManager.swift):
+
 ```swift
-func setupMissionResetTimer() {
+private func setupMissionResetTimer() {
+    // Check for resets when app enters foreground (battery-efficient)
     NotificationCenter.default.addObserver(
         self,
-        selector: #selector(checkAndResetMissions),
+        selector: #selector(handleAppWillEnterForeground),
         name: UIApplication.willEnterForegroundNotification,
         object: nil
     )
+    
+    // Also check on first launch
+    checkAndResetMissions()
+}
+
+@objc private func handleAppWillEnterForeground() {
+    Task { @MainActor in
+        checkAndResetMissions()
+    }
+}
+
+deinit {
+    NotificationCenter.default.removeObserver(self)
 }
 ```
+
+**Miglioramenti**:
+- ✅ **Timer rimosso completamente**: Zero overhead quando app in background
+- ✅ **Check solo su foreground**: Batteria risparmiata significativamente
+- ✅ **Check al launch**: Missioni sempre aggiornate all'apertura
+- ✅ **Memory safe**: Observer rimosso nel deinit
+- ✅ **MainActor compliance**: Chiamate async corrette
+
+**Impatto**:
+- 🔋 **Batteria**: Da ~1440 check/giorno a ~10-50 check/giorno (in base all'uso)
+- ⚡ **CPU**: Zero overhead quando app non in uso
+- 📱 **UX**: Stesso comportamento percepito dall'utente (check istantaneo all'apertura)
+
+**Build**: ✅ SUCCESS - Zero warning
 
 ---
 

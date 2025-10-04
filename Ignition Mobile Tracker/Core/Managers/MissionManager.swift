@@ -31,12 +31,26 @@ class MissionManager: ObservableObject {
         setupMissionResetTimer()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     private func setupMissionResetTimer() {
-        // Check for resets every minute (in production, could be less frequent)
-        Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.checkAndResetMissions()
-            }
+        // Check for resets when app enters foreground (battery-efficient)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        
+        // Also check on first launch
+        checkAndResetMissions()
+    }
+    
+    @objc private func handleAppWillEnterForeground() {
+        Task { @MainActor in
+            checkAndResetMissions()
         }
     }
     
