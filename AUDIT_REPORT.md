@@ -8,7 +8,7 @@
 
 L'app presenta una **solida architettura tecnica** con un **sistema di gamification ben implementato**. Il sistema di localizzazione è stato completato (100% inglese), **tutte le API deprecate iOS 17.0** sono state aggiornate, la gestione dei file di progetto è pulita, **il sistema di achievement missions per le carte è completamente funzionante**, e **Core Data migration è configurata per aggiornamenti sicuri dello schema**. Rimangono principalmente questioni di ottimizzazione performance e miglioramenti UX/code quality. L'app è stabile e pronta per production con un'architettura scalabile.
 
-**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **10 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
+**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **9 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
 
 ---
 
@@ -196,88 +196,7 @@ container.persistentStoreDescriptions.forEach { storeDescription in
 
 ## 🟠 PROBLEMI IMPORTANTI (Alta Priorità)
 
-### 8. ~~**Mancanza di Error Handling Robusto**~~ ✅ COMPLETATA
-**Gravità**: 🟠 IMPORTANTE  
-**Impatto**: Crash silenziosi, cattiva UX
-
-**Status**: ✅ **RISOLTO** - Minimal error handling implementato (App Store ready)
-
-**Problema Originale**:
-Errori Core Data erano silenziosi - l'utente non vedeva nulla se il salvataggio falliva.
-
-**Implementazione Conservativa**:
-
-1. **ErrorManager.swift** (Nuovo file - 46 righe):
-```swift
-@MainActor
-class ErrorManager: ObservableObject {
-    static let shared = ErrorManager()
-    
-    @Published var currentError: AppError?
-    @Published var showAlert = false
-    
-    func handleCoreDataError(_ error: Error, context: String) {
-        currentError = AppError(
-            title: "Unable to Save",
-            message: "There was a problem \(context). Please try again."
-        )
-        showAlert = true
-    }
-}
-```
-
-2. **MainTabView.swift** (Alert UI):
-```swift
-.alert(errorManager.currentError?.title ?? "Error", 
-       isPresented: $errorManager.showAlert) {
-    Button("OK") {
-        errorManager.currentError = nil
-    }
-} message: {
-    Text(errorManager.currentError?.message ?? "An unexpected error occurred.")
-}
-```
-
-3. **PersistenceController.swift** (Catch critici):
-```swift
-catch {
-    // Notify user of critical save failure
-    Task { @MainActor in
-        ErrorManager.shared.handleCoreDataError(error, context: "saving your changes")
-    }
-}
-```
-
-**Cosa Copre**:
-- ✅ **Core Data save errors**: L'utente vede alert se fallisce
-- ✅ **User-friendly messages**: No messaggi tecnici
-- ✅ **Centralized handling**: Un solo punto di gestione
-- ✅ **Non-blocking**: App continua a funzionare
-
-**Cosa NON Copre** (non necessario per prima review):
-- ❌ Logging avanzato (os_log)
-- ❌ Analytics errori
-- ❌ Retry automatici
-- ❌ Crashlytics/Sentry
-
-**Approccio Ultra-Conservativo**:
-- ✅ Solo 1 nuovo file (46 righe)
-- ✅ Solo 3 modifiche minime a file esistenti
-- ✅ Zero breaking changes
-- ✅ Alert nativi SwiftUI (no dependencies)
-- ✅ Codice minimalista
-
-**App Store Compliance**:
-- ✅ Errori critici non silenziosi
-- ✅ Utente informato se qualcosa va storto
-- ✅ Messaggi chiari e actionable
-- ✅ Graceful degradation
-
-**Build**: ✅ SUCCESS - Zero errori introdotti
-
----
-
-### 9. **Performance - Caricamento Sparks Non Ottimizzato**
+### 8. **Performance - Caricamento Sparks Non Ottimizzato**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Lag con 1000+ sparks, batteria consumata
 
@@ -352,7 +271,7 @@ deinit {
 
 ---
 
-### 11. **Mancanza di Data Export/Backup**
+### 9. **Mancanza di Data Export/Backup**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Perdita dati permanente se utente cambia dispositivo
 
@@ -370,7 +289,7 @@ Nessun sistema di backup/export implementato:
 
 ---
 
-### 12. **Inconsistenza Navigation - Multiple Ways to Open Stats**
+### 10. **Inconsistenza Navigation - Multiple Ways to Open Stats**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Confusione UX, comportamento imprevedibile
 
@@ -389,7 +308,7 @@ Il codice mostra `tabRouter.navigate(to: .stats)` in alcuni punti, ma .stats non
 
 ---
 
-### 13. **Card Drop Rate Non Configurabile**
+### 11. **Card Drop Rate Non Configurabile**
 **Gravità**: 🟡 MEDIA (upgrade da minore)  
 **Impatto**: Difficile bilanciare progression
 
@@ -411,7 +330,7 @@ Impossibile A/B test o bilanciare senza rebuild.
 
 ---
 
-### 14. **Missing Analytics**
+### 12. **Missing Analytics**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Impossibile migliorare l'app basandosi su dati
 
@@ -428,7 +347,7 @@ Zero analytics implementati:
 
 ---
 
-### 15. **Accessibilità - VoiceOver Support Mancante**
+### 13. **Accessibilità - VoiceOver Support Mancante**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: App inaccessibile a utenti con disabilità visive, può causare rigetto App Store
 
@@ -445,7 +364,7 @@ Zero analytics implementati:
 
 ---
 
-### 16. **Nessun Rate Limiting su Spark Creation**
+### 14. **Nessun Rate Limiting su Spark Creation**
 **Gravità**: 🟡 MEDIA  
 **Impatto**: Possibile abuse, data inconsistency
 
@@ -462,7 +381,7 @@ Utente può creare infinite sparks rapidamente (es. bug, testing), causando:
 
 ---
 
-### 17. **Hardcoded Colors - Nessun Dark/Light Mode Support**
+### 15. **Hardcoded Colors - Nessun Dark/Light Mode Support**
 **Gravità**: 🟡 MEDIA  
 **Impatto**: UX non ottimale in ambiente luminoso
 
@@ -481,7 +400,7 @@ Nessun supporto per light mode (utente non può scegliere).
 
 ---
 
-### 18. **SparkManagerExpanded.swift - File Gigante (1700+ linee)**
+### 16. **SparkManagerExpanded.swift - File Gigante (1700+ linee)**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Manutenibilità ridotta, merge conflicts, difficoltà debug
 
@@ -504,7 +423,7 @@ SparkStreakManager.swift
 
 ---
 
-### 19. **Missing Onboarding Flow**
+### 17. **Missing Onboarding Flow**
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Nuovi utenti confusi, abbandono precoce
 
