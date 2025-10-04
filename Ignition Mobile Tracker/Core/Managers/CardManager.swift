@@ -195,6 +195,14 @@ class CardManager: ObservableObject {
                 print("   Duplicate! +\(result.duplicatePoints) bonus points")
             }
             
+            // Notify mission manager about card obtained (only for new cards)
+            if result.isNew {
+                NotificationCenter.default.post(
+                    name: .cardObtained,
+                    object: updatedCard
+                )
+            }
+            
             return (updatedCard, result.duplicatePoints, result.isNew)
         }
         

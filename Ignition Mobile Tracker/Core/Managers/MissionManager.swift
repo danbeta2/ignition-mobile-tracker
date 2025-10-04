@@ -34,7 +34,9 @@ class MissionManager: ObservableObject {
     private func setupMissionResetTimer() {
         // Check for resets every minute (in production, could be less frequent)
         Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            self?.checkAndResetMissions()
+            Task { @MainActor in
+                self?.checkAndResetMissions()
+            }
         }
     }
     
@@ -45,6 +47,17 @@ class MissionManager: ObservableObject {
                 if let spark = notification.object as? SparkModel {
                     Task { @MainActor in
                         self?.updateMissionProgress(for: spark)
+                    }
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Listen for card obtained events to update card achievement missions
+        NotificationCenter.default.publisher(for: .cardObtained)
+            .sink { [weak self] notification in
+                if let card = notification.object as? SparkCardModel {
+                    Task { @MainActor in
+                        self?.updateCardMissionProgress(for: card)
                     }
                 }
             }
@@ -204,6 +217,93 @@ class MissionManager: ObservableObject {
             }
             
             missions[index] = updatedMission
+        }
+    }
+    
+    // MARK: - Card Mission Progress
+    
+    /// Updates progress for card-related achievement missions
+    private func updateCardMissionProgress(for card: SparkCardModel) {
+        let cardManager = CardManager.shared
+        let activeMissions = missions.filter { $0.status != .completed && $0.type == .achievement }
+        
+        for mission in activeMissions {
+            var shouldUpdate = false
+            var newProgress = 0
+            
+            switch mission.title {
+            case "First Card":
+                // Count total owned cards
+                newProgress = cardManager.ownedCardsCount
+                shouldUpdate = true
+                
+            case "Rare Collector":
+                // Count rare cards
+                newProgress = cardManager.ownedCards.filter { $0.rarity == .rare }.count
+                shouldUpdate = true
+                
+            case "Epic Hunter":
+                // Count epic cards
+                newProgress = cardManager.ownedCards.filter { $0.rarity == .epic }.count
+                shouldUpdate = true
+                
+            case "Legendary Status":
+                // Count legendary cards
+                newProgress = cardManager.ownedCards.filter { $0.rarity == .legendary }.count
+                shouldUpdate = true
+                
+            case "Master of Decision":
+                // Count Decision category cards
+                if let category = mission.category {
+                    newProgress = cardManager.ownedCards.filter { $0.category == category }.count
+                    shouldUpdate = true
+                }
+                
+            case "Master of Energy":
+                // Count Energy category cards
+                if let category = mission.category {
+                    newProgress = cardManager.ownedCards.filter { $0.category == category }.count
+                    shouldUpdate = true
+                }
+                
+            case "Master of Ideas":
+                // Count Idea category cards
+                if let category = mission.category {
+                    newProgress = cardManager.ownedCards.filter { $0.category == category }.count
+                    shouldUpdate = true
+                }
+                
+            case "Master of Experiments":
+                // Count Experiment category cards
+                if let category = mission.category {
+                    newProgress = cardManager.ownedCards.filter { $0.category == category }.count
+                    shouldUpdate = true
+                }
+                
+            case "Master of Challenges":
+                // Count Challenge category cards
+                if let category = mission.category {
+                    newProgress = cardManager.ownedCards.filter { $0.category == category }.count
+                    shouldUpdate = true
+                }
+                
+            case "Legendary Collector":
+                // Count all legendary cards
+                newProgress = cardManager.ownedCards.filter { $0.rarity == .legendary }.count
+                shouldUpdate = true
+                
+            case "Completionist":
+                // Count all owned cards
+                newProgress = cardManager.ownedCardsCount
+                shouldUpdate = true
+                
+            default:
+                break
+            }
+            
+            if shouldUpdate {
+                updateMissionProgressValue(mission, newProgress: newProgress)
+            }
         }
     }
     

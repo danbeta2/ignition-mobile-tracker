@@ -84,7 +84,7 @@ class SparkManager: ObservableObject {
         
         // Trigger card drop for this spark's category
         let cardDrop = CardManager.shared.triggerCardDrop(for: savedSpark.category)
-        if let obtainedCard = cardDrop.card {
+        if cardDrop.card != nil {
             // If a card was obtained, show the reveal animation
             CardManager.shared.showCardReveal = true
             
@@ -212,4 +212,5 @@ extension Notification.Name {
     static let sparkDeleted = Notification.Name("sparkDeleted")
     static let overloadTriggered = Notification.Name("overloadTriggered")
     static let cardDuplicateObtained = Notification.Name("cardDuplicateObtained")
+    static let cardObtained = Notification.Name("cardObtained")
 }
