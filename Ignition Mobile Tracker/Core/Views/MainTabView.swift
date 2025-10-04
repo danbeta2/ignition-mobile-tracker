@@ -11,6 +11,7 @@ struct MainTabView: View {
     @StateObject private var tabRouter = TabRouter()
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
+    @StateObject private var errorManager = ErrorManager.shared
     
     var body: some View {
         NavigationStack(path: $tabRouter.navigationPath) {
@@ -65,6 +66,13 @@ struct MainTabView: View {
             }
             .navigationDestination(for: SecondaryRoute.self) { route in
                 destinationView(for: route)
+            }
+            .alert(errorManager.currentError?.title ?? "Error", isPresented: $errorManager.showAlert) {
+                Button("OK") {
+                    errorManager.currentError = nil
+                }
+            } message: {
+                Text(errorManager.currentError?.message ?? "An unexpected error occurred.")
             }
         }
     }

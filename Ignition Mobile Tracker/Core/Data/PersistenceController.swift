@@ -59,6 +59,11 @@ class PersistenceController {
             } catch {
                 let nsError = error as NSError
                 print("❌ Core Data save error: \(nsError), \(nsError.userInfo)")
+                
+                // Notify user of critical save failure
+                Task { @MainActor in
+                    ErrorManager.shared.handleCoreDataError(error, context: "saving your changes")
+                }
             }
         }
     }
