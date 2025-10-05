@@ -193,7 +193,7 @@ class CardManager: ObservableObject {
         // Obtain the card (handles both new and duplicate)
         let result = persistenceController.obtainSparkCard(cardId: selectedCard.id)
         
-        // Reload cards
+        // Reload cards to get updated counts
         loadAllCards()
         
         // Get the updated card
@@ -201,17 +201,21 @@ class CardManager: ObservableObject {
             lastObtainedCard = updatedCard
             
             print("🎴 Card obtained: \(updatedCard.displayTitle) (\(updatedCard.rarity.displayName))")
+            print("📊 Total cards owned: \(ownedCardsCount)/\(totalCardsCount)")
+            
             if !result.isNew {
                 print("   Duplicate! +\(result.duplicatePoints) bonus points")
+            } else {
+                print("   ✨ NEW CARD! Now own \(ownedCardsCount) total cards")
             }
             
-            // Notify mission manager about card obtained (only for new cards)
-            if result.isNew {
-                NotificationCenter.default.post(
-                    name: .cardObtained,
-                    object: updatedCard
-                )
-            }
+            // Notify mission manager about card obtained
+            // IMPORTANT: Always send notification so missions can update their progress
+            print("📢 Posting .cardObtained notification for mission tracking")
+            NotificationCenter.default.post(
+                name: .cardObtained,
+                object: updatedCard
+            )
             
             return (updatedCard, result.duplicatePoints, result.isNew)
         }

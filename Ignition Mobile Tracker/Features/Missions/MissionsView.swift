@@ -119,17 +119,18 @@ struct MissionsView: View {
     // MARK: - Empty State View
     private var emptyStateView: some View {
         VStack(spacing: IgnitionSpacing.lg) {
-            Image(systemName: "target")
+            Image(systemName: "trophy.fill")
                 .font(.system(size: 60))
-                .foregroundColor(IgnitionColors.mediumGray)
+                .foregroundColor(IgnitionColors.goldAccent)
+                .goldGlow(radius: 10)
             
             VStack(spacing: IgnitionSpacing.sm) {
-                Text("No Missions")
+                Text("All Done!")
                     .font(IgnitionFonts.title2)
                     .fontWeight(.bold)
                     .foregroundColor(themeManager.textColor)
                 
-                Text("New missions will be generated automatically")
+                Text(emptyStateMessage)
                     .font(IgnitionFonts.body)
                     .foregroundColor(IgnitionColors.secondaryText)
                     .multilineTextAlignment(.center)
@@ -137,6 +138,21 @@ struct MissionsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(IgnitionSpacing.xl)
+    }
+    
+    private var emptyStateMessage: String {
+        switch selectedFilter {
+        case .all:
+            return "All missions completed! Check back tomorrow for daily missions."
+        case .daily:
+            return "All daily missions completed! Daily missions reset at midnight."
+        case .weekly:
+            return "All weekly missions completed! Weekly missions reset every Monday."
+        case .achievements:
+            return "No achievements available at this time. Keep creating sparks!"
+        case .completed:
+            return "No completed missions yet. Start completing missions to see them here!"
+        }
     }
     
     // MARK: - Missions List Section
