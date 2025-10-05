@@ -372,3 +372,14 @@ extension CDSparkCard {
         )
     }
 }
+
+// MARK: - SparkModel Extensions
+
+extension SparkModel {
+    /// Placeholder property for favorite functionality
+    /// TODO: Implement proper favorite tracking in Core Data when needed
+    var isFavorite: Bool {
+        get { return false } // Placeholder - not yet implemented
+        set { } // Placeholder - not yet implemented
+    }
+}

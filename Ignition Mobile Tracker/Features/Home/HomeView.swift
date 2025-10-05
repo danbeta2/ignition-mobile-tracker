@@ -17,6 +17,9 @@ struct HomeView: View {
     
     @State private var showingOverloadEffects = false
     @State private var overloadAnimationScale: CGFloat = 1.0
+    
+    // MARK: - Modal Presentations
+    // Note: Stats and Settings are always presented as sheets for consistent UX
     @State private var showingStats = false
     @State private var showingSettings = false
     @State private var selectedSparkForDetails: SparkModel?
@@ -84,6 +87,14 @@ struct HomeView: View {
                 CardRevealView(card: card, isPresented: $cardManager.showCardReveal)
             }
         }
+        .overlay(
+            Group {
+                if cardManager.showNoCardMessage {
+                    NoCardObtainedView()
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+        )
     }
     
     // MARK: - Setup
@@ -729,6 +740,50 @@ struct HomeView: View {
         formatter.numberStyle = .decimal
         formatter.locale = Locale(identifier: "it_IT")
         return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
+    }
+}
+
+// MARK: - No Card Obtained View
+struct NoCardObtainedView: View {
+    @Environment(\.themeManager) private var themeManager
+    
+    var body: some View {
+        ZStack {
+            // Semi-transparent background
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+            
+            // Card
+            VStack(spacing: IgnitionSpacing.lg) {
+                // Icon
+                ZStack {
+                    Circle()
+                        .fill(IgnitionColors.mediumGray.opacity(0.3))
+                        .frame(width: 100, height: 100)
+                    
+                    Image(systemName: "square.stack.3d.up.slash")
+                        .font(.system(size: 50))
+                        .foregroundColor(IgnitionColors.mediumGray)
+                }
+                
+                VStack(spacing: IgnitionSpacing.sm) {
+                    Text("No Card This Time")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                    
+                    Text("Better luck next time!")
+                        .font(.subheadline)
+                        .foregroundColor(IgnitionColors.secondaryText)
+                }
+            }
+            .padding(IgnitionSpacing.xl)
+            .background(
+                RoundedRectangle(cornerRadius: IgnitionCornerRadius.xl)
+                    .fill(themeManager.cardBackgroundColor)
+                    .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: 10)
+            )
+            .padding(IgnitionSpacing.xl)
+        }
     }
 }
 

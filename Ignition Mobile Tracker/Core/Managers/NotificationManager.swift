@@ -27,19 +27,19 @@ enum NotificationType: String, CaseIterable {
     var title: String {
         switch self {
         case .dailyReminder:
-            return "🔥 Tempo di Spark!"
+            return "🔥 Time to Spark!"
         case .streakReminder:
-            return "⚡ Mantieni la Streak!"
+            return "⚡ Keep Your Streak!"
         case .missionDeadline:
-            return "🎯 Missione in Scadenza"
+            return "🎯 Mission Deadline"
         case .overloadReady:
-            return "💥 Overload Pronto!"
+            return "💥 Overload Ready!"
         case .weeklyReport:
-            return "📊 Report Settimanale"
+            return "📊 Weekly Report"
         case .achievementUnlocked:
-            return "🏆 Achievement Sbloccato!"
+            return "🏆 Achievement Unlocked!"
         case .sparkSuggestion:
-            return "💡 Suggerimento Spark"
+            return "💡 Spark Suggestion"
         }
     }
 }
@@ -174,8 +174,8 @@ class IgnitionNotificationManager: ObservableObject {
         components.minute = minute
         
         let content = UNMutableNotificationContent()
-        content.title = "🔥 Tempo di Spark!"
-        content.body = "Non dimenticare di registrare i tuoi spark di oggi!"
+        content.title = "🔥 Time to Spark!"
+        content.body = "Don't forget to record your sparks today!"
         content.sound = .default
         content.badge = 1
         content.userInfo = ["type": NotificationType.dailyReminder.rawValue]
@@ -260,13 +260,13 @@ class IgnitionNotificationManager: ObservableObject {
     
     func scheduleSparkSuggestion(category: SparkCategory) async {
         let suggestions = [
-            "Hai provato a creare un spark \(category.displayName.lowercased()) oggi?",
-            "Che ne dici di esplorare la categoria \(category.displayName)?",
-            "Un piccolo spark \(category.displayName.lowercased()) può fare la differenza!",
-            "È il momento perfetto per un spark di tipo \(category.displayName)!"
+            "Have you tried creating a \(category.displayName.lowercased()) spark today?",
+            "How about exploring the \(category.displayName) category?",
+            "A small \(category.displayName.lowercased()) spark can make a difference!",
+            "It's the perfect time for a \(category.displayName) spark!"
         ]
         
-        let body = suggestions.randomElement() ?? "Tempo di creare un nuovo spark!"
+        let body = suggestions.randomElement() ?? "Time to create a new spark!"
         
         await scheduleNotification(
             type: .sparkSuggestion,

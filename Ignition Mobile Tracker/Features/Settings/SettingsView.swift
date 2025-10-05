@@ -82,17 +82,6 @@ struct SettingsView: View {
                     }
                 }
                 
-                // MARK: - Accessibility Section
-                Section("Accessibility") {
-                    Toggle(isOn: $themeManager.reduceMotion) {
-                        Label("Reduce Motion", systemImage: "figure.walk")
-                    }
-                    .onChange(of: themeManager.reduceMotion) { _, newValue in
-                        themeManager.updateReduceMotion(newValue)
-                        audioHapticsManager.uiTapped()
-                    }
-                }
-                
                 // MARK: - Notifications Section
                 Section("Notifications") {
                     Button(action: {

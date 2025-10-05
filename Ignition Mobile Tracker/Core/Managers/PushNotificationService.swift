@@ -209,11 +209,17 @@ extension PushNotificationService {
     private func scheduleStreakProtectionNotifications(streak: Int) async {
         let importance = min(streak / 7, 5) // Increase importance with longer streaks
         
+        // Guard against invalid range (importance must be >= 1)
+        guard importance >= 1 else {
+            print("⚠️ Streak too low (\(streak)) to schedule protection notifications")
+            return
+        }
+        
         for i in 1...importance {
             let delay = TimeInterval(i * 3600) // Every hour
             await IgnitionNotificationManager.shared.scheduleNotification(
                 type: .streakReminder,
-                body: "🔥 Streak di \(streak) giorni! Non perderla ora!",
+                body: "🔥 \(streak)-day streak! Don't lose it now!",
                 timeInterval: delay
             )
         }
@@ -224,7 +230,7 @@ extension PushNotificationService {
         // For now, we'll schedule a generic mission reminder
             await IgnitionNotificationManager.shared.scheduleNotification(
                 type: .missionDeadline,
-                body: "🎯 Hai missioni in scadenza! Completale per guadagnare punti.",
+                body: "🎯 You have missions expiring! Complete them to earn points.",
                 timeInterval: 7200 // 2 hours
             )
     }
@@ -239,10 +245,10 @@ extension PushNotificationService {
     
     private func scheduleEngagementBoostNotifications() async {
         let messages = [
-            "💡 Hai qualche idea interessante da condividere?",
-            "⚡ Anche un piccolo spark può fare la differenza!",
-            "🌟 I tuoi progressi ti aspettano!",
-            "🚀 Pronto per il prossimo livello?"
+            "💡 Do you have any interesting ideas to share?",
+            "⚡ Even a small spark can make a difference!",
+            "🌟 Your progress is waiting for you!",
+            "🚀 Ready for the next level?"
         ]
         
         for (index, message) in messages.enumerated() {
@@ -263,7 +269,7 @@ extension PushNotificationService {
             let remaining = weeklyTarget - currentWeekSparks
             await IgnitionNotificationManager.shared.scheduleNotification(
                 type: .weeklyReport,
-                body: "📊 Ti mancano \(remaining) spark per raggiungere l'obiettivo settimanale!",
+                body: "📊 You need \(remaining) more spark\(remaining == 1 ? "" : "s") to reach your weekly goal!",
                 timeInterval: 3600 // 1 hour
             )
         }

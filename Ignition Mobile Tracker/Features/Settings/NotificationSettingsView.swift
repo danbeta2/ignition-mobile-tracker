@@ -58,12 +58,12 @@ struct NotificationSettingsView: View {
                 Section {
                     // Daily Reminder
                     VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
-                        Toggle("Promemoria Giornaliero", isOn: $dailyReminderEnabled)
+                        Toggle("Daily Reminder", isOn: $dailyReminderEnabled)
                             .font(IgnitionFonts.body)
                         
                         if dailyReminderEnabled {
                             HStack {
-                                Text("Orario:")
+                                Text("Time:")
                                     .font(IgnitionFonts.caption2)
                                     .foregroundColor(IgnitionColors.secondaryText)
                                 
@@ -84,19 +84,19 @@ struct NotificationSettingsView: View {
                         }
                     }
                     
-                    Toggle("Protezione Streak", isOn: $streakRemindersEnabled)
+                    Toggle("Streak Protection", isOn: $streakRemindersEnabled)
                         .font(IgnitionFonts.body)
                         .onChange(of: streakRemindersEnabled) { _, enabled in
                             updateStreakReminders(enabled: enabled)
                         }
                     
-                    Toggle("Scadenze Missioni", isOn: $missionDeadlinesEnabled)
+                    Toggle("Mission Deadlines", isOn: $missionDeadlinesEnabled)
                         .font(IgnitionFonts.body)
                         .onChange(of: missionDeadlinesEnabled) { _, enabled in
                             updateMissionDeadlines(enabled: enabled)
                         }
                     
-                    Toggle("Report Settimanali", isOn: $weeklyReportsEnabled)
+                    Toggle("Weekly Reports", isOn: $weeklyReportsEnabled)
                         .font(IgnitionFonts.body)
                         .onChange(of: weeklyReportsEnabled) { _, enabled in
                             updateWeeklyReports(enabled: enabled)
@@ -112,7 +112,7 @@ struct NotificationSettingsView: View {
                 // MARK: - Push Notifications
                 Section {
                     VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
-                        Toggle("Notifiche Push", isOn: $pushNotificationsEnabled)
+                        Toggle("Push Notifications", isOn: $pushNotificationsEnabled)
                             .font(IgnitionFonts.body)
                         
                         if pushNotificationsEnabled {
@@ -133,18 +133,18 @@ struct NotificationSettingsView: View {
                         updatePushNotifications(enabled: enabled)
                     }
                     
-                    Toggle("Achievement Sbloccati", isOn: $achievementNotificationsEnabled)
+                    Toggle("Achievement Unlocked", isOn: $achievementNotificationsEnabled)
                         .font(IgnitionFonts.body)
                         .disabled(!pushNotificationsEnabled)
                     
-                    Toggle("Suggerimenti Spark", isOn: $sparkSuggestionsEnabled)
+                    Toggle("Spark Suggestions", isOn: $sparkSuggestionsEnabled)
                         .font(IgnitionFonts.body)
                         .disabled(!pushNotificationsEnabled)
                     
                 } header: {
-                    Text("Notifiche Push")
+                    Text("Push Notifications")
                 } footer: {
-                    Text("Le notifiche push richiedono una connessione internet e vengono inviate dal server.")
+                    Text("Push notifications require an internet connection and are sent from the server.")
                         .font(IgnitionFonts.caption2)
                 }
                 

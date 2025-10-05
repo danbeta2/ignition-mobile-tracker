@@ -22,6 +22,7 @@ struct MissionsView: View {
         case all = "All"
         case daily = "Daily"
         case weekly = "Weekly"
+        case achievements = "Achievements"
         case completed = "Completed"
     }
     
@@ -177,6 +178,8 @@ struct MissionsView: View {
             return missionManager.missions.filter { $0.type == .daily }
         case .weekly:
             return missionManager.missions.filter { $0.type == .weekly }
+        case .achievements:
+            return missionManager.missions.filter { $0.type == .achievement }
         case .completed:
             return missionManager.completedMissions()
         }
@@ -331,7 +334,7 @@ struct MissionCardView: View {
                 }) {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                        Text("Riscuoti Ricompensa")
+                        Text("Claim Reward")
                     }
                     .font(IgnitionFonts.callout)
                     .fontWeight(.semibold)

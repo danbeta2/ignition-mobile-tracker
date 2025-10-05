@@ -8,7 +8,7 @@
 
 L'app presenta una **solida architettura tecnica** con un **sistema di gamification ben implementato**. Il sistema di localizzazione è stato completato (100% inglese), **tutte le API deprecate iOS 17.0** sono state aggiornate, la gestione dei file di progetto è pulita, **il sistema di achievement missions per le carte è completamente funzionante**, e **Core Data migration è configurata per aggiornamenti sicuri dello schema**. Rimangono principalmente questioni di ottimizzazione performance e miglioramenti UX/code quality. L'app è stabile e pronta per production con un'architettura scalabile.
 
-**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **8 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
+**Priorità Globale**: 🔴 **0 Critiche** | 🟠 **6 Importanti** | 🟡 **8 Medie** | 🟢 **5 Minori**
 
 ---
 
@@ -289,22 +289,60 @@ Nessun sistema di backup/export implementato:
 
 ---
 
-### 10. **Inconsistenza Navigation - Multiple Ways to Open Stats**
+### 10. ~~**Inconsistenza Navigation - Multiple Ways to Open Stats**~~ ✅ COMPLETATA
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Confusione UX, comportamento imprevedibile
 
-**Problema**:
-Stats può essere aperta da:
-1. Custom header button (sheet)
-2. Quick Action card in Home (sheet)
-3. Tab bar (c'è una Tab? No, ma il codice suggerisce inconsistenza)
+**Status**: ✅ **RISOLTO** - Navigation pattern standardizzato
 
-Il codice mostra `tabRouter.navigate(to: .stats)` in alcuni punti, ma .stats non è un TabRoute valido.
+**Problema Originale**:
+Stats e Settings erano definiti come `SecondaryRoute`, creando potenziale confusione tra navigation push e sheet presentation.
 
-**Soluzione**:
-1. Standardizzare: Stats sempre come sheet
-2. Rimuovere logiche di navigation conflittuali
-3. Documentare pattern di navigation
+**Implementazione**:
+
+1. **Rimosso Dead Code** (`TabRouter.swift`):
+   - ✅ Rimosso `.stats` da `SecondaryRoute` enum
+   - ✅ Rimosso `.settings` da `SecondaryRoute` enum
+   - ✅ Aggiunto commento documentativo sul pattern
+
+2. **Rimossi Navigation Destinations** (`MainTabView.swift`):
+   - ✅ Rimossi case `.stats` e `.settings` da `destinationView()`
+   - ✅ Aggiunto commento esplicativo
+
+3. **Aggiornato HomeViewExpanded**:
+   - ✅ Cambiato `tabRouter.navigate(to: .stats)` → `showingStats = true`
+   - ✅ Aggiunto `@State private var showingStats`
+   - ✅ Aggiunto `.sheet(isPresented: $showingStats)`
+
+4. **Documentazione Completa**:
+   - ✅ Creato `NAVIGATION_PATTERNS.md` con:
+     - Pattern standardizzati (TabBar, Sheets, NavigationPath)
+     - Anti-patterns da evitare
+     - Esempi di codice
+     - Decision tree per nuove feature
+
+**Pattern Standardizzato**:
+```swift
+// Stats e Settings = SEMPRE sheet
+@State private var showingStats = false
+.sheet(isPresented: $showingStats) {
+    StatsViewExpanded()
+}
+```
+
+**Approccio Ultra-Conservativo**:
+- ✅ Zero breaking changes per funzionalità esistenti
+- ✅ Solo rimozione di dead code
+- ✅ Tutti i riferimenti aggiornati
+- ✅ Pattern documentato per team
+
+**Benefits**:
+- 🎯 **UX Consistency**: Stats sempre presentato come sheet
+- 📚 **Documentation**: Pattern chiaro per developer futuri
+- 🧹 **Code Quality**: Dead code rimosso
+- ⚡ **Maintainability**: Single source of truth
+
+**Build**: ✅ SUCCESS - Zero warning/errori
 
 ---
 
@@ -400,26 +438,60 @@ Nessun supporto per light mode (utente non può scegliere).
 
 ---
 
-### 16. **SparkManagerExpanded.swift - File Gigante (1700+ linee)**
+### 16. ~~**SparkManagerExpanded.swift - File Gigante (1914 linee)**~~ ✅ COMPLETATA
 **Gravità**: 🟠 IMPORTANTE  
 **Impatto**: Manutenibilità ridotta, merge conflicts, difficoltà debug
 
-**Problema**:
-`SparkManagerExpanded.swift` è un monolite di 1700+ linee con:
-- Logiche analytics miste a CRUD
-- Streak calculations
-- Export functionality
-- Tag management
+**Status**: ✅ **RISOLTO** - Dead code eliminato completamente
 
-**Soluzione**:
-Refactoring in moduli separati:
+**Problema Originale**:
+`SparkManagerExpanded.swift` (1914 righe) era un file dead code:
+- Classe `SparkManagerExpanded` mai usata nell'app
+- 22 struct/enum placeholder (mai usati)
+- 4 class placeholder (AnalyticsEngine, MachineLearningEngine, ecc.)
+- Conflitti di nomi con altri manager (NotificationManager duplicato)
+- Unica parte usata: extension `SparkModel.isFavorite`
+
+**Implementazione**:
+
+1. **Analisi Dead Code**:
+   - ✅ Verificato che classe principale non è mai istanziata
+   - ✅ Controllato ogni tipo (27 totali) per uso esterno
+   - ✅ Identificato solo extension `isFavorite` come codice usato
+
+2. **Estrazione Codice Utile**:
+   - ✅ Spostato extension `SparkModel.isFavorite` in `CoreDataExtensions.swift`
+   - ✅ Aggiunto TODO per implementazione futura completa
+
+3. **Eliminazione File**:
+   - ✅ Eliminato `SparkManagerExpanded.swift` (1914 righe)
+   - ✅ Build succeeded senza errori
+   - ✅ Zero breaking changes
+
+4. **Refactoring MissionsViewExpanded.swift**:
+   - ✅ Estratto 5 enum in `MissionsViewExpanded+Enums.swift` (116 righe)
+   - ✅ File principale ridotto: 2002 → 1899 righe (-103 righe, -5%)
+
+**Net Result**: **-1889 righe di dead code eliminato** 🚀
+
+**Codice Salvato**:
+```swift
+// CoreDataExtensions.swift
+extension SparkModel {
+    var isFavorite: Bool {
+        get { return false } // Placeholder
+        set { } // Placeholder
+    }
+}
 ```
-SparkManager.swift (core CRUD)
-SparkAnalytics.swift
-SparkExporter.swift
-SparkTagManager.swift
-SparkStreakManager.swift
-```
+
+**Approccio Ultra-Conservativo**:
+- ✅ Backup creato prima dell'eliminazione
+- ✅ Build test immediato dopo ogni modifica
+- ✅ Zero impatto su funzionalità esistenti
+- ✅ Codice veramente usato preservato
+
+**Build**: ✅ SUCCESS - Zero warning/errori
 
 ---
 

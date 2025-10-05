@@ -8,10 +8,13 @@
 import SwiftUI
 import Charts
 
+// Enums extracted to MissionsViewExpanded+Enums.swift for better code organization
+
 struct MissionsViewExpanded: View {
     @StateObject private var missionManager = MissionManager.shared
     @StateObject private var userProfileManager = UserProfileManager.shared
     @StateObject private var sparkManager = SparkManager.shared
+    @StateObject private var cardManager = CardManager.shared
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @Environment(\.themeManager) private var themeManager
     @Environment(\.tabRouter) private var tabRouter
@@ -36,7 +39,6 @@ struct MissionsViewExpanded: View {
     @State private var showingCompletionAnimation = false
     @State private var completedMissionReward = 0
     @State private var completedMissionTitle = ""
-    @State private var showingCompletionOverlay = false
     
     // UI States
     @State private var animateMissions = false
@@ -55,111 +57,6 @@ struct MissionsViewExpanded: View {
     @State private var currentStreak = 0
     @State private var showingLevelUp = false
     @State private var missionPoints = 0
-    
-    // MARK: - Enums
-    enum MissionFilter: String, CaseIterable {
-        case all = "All"
-        case available = "Available"
-        case inProgress = "In Progress"
-        case completed = "Completed"
-        case expired = "Expired"
-        case favorites = "Favorites"
-        
-        var icon: String {
-            switch self {
-            case .all: return "list.bullet"
-            case .available: return "play.circle"
-            case .inProgress: return "clock"
-            case .completed: return "checkmark.circle"
-            case .expired: return "xmark.circle"
-            case .favorites: return "heart.fill"
-            }
-        }
-    }
-    
-    enum MissionDifficultyFilter: String, CaseIterable {
-        case all = "All"
-        case easy = "Easy"
-        case medium = "Medium"
-        case hard = "Hard"
-        case expert = "Expert"
-        
-        var icon: String {
-            switch self {
-            case .all: return "star"
-            case .easy: return "star.fill"
-            case .medium: return "star.leadinghalf.filled"
-            case .hard: return "flame"
-            case .expert: return "flame.fill"
-            }
-        }
-        
-        func matches(_ difficulty: MissionDifficulty) -> Bool {
-            switch self {
-            case .all: return true
-            case .easy: return difficulty == .easy
-            case .medium: return difficulty == .medium
-            case .hard: return difficulty == .hard
-            case .expert: return difficulty == .expert
-            }
-        }
-    }
-    
-    enum MissionTimeframe: String, CaseIterable {
-        case all = "All"
-        case daily = "Daily"
-        case weekly = "Weekly"
-        case monthly = "Monthly"
-        case seasonal = "Seasonal"
-        case special = "Special"
-        
-        var icon: String {
-            switch self {
-            case .all: return "calendar"
-            case .daily: return "sun.max"
-            case .weekly: return "calendar.badge.clock"
-            case .monthly: return "calendar.circle"
-            case .seasonal: return "leaf"
-            case .special: return "star.circle"
-            }
-        }
-    }
-    
-    enum MissionViewMode: String, CaseIterable {
-        case cards = "Cards"
-        case list = "List"
-        case timeline = "Timeline"
-        case board = "Board"
-        
-        var icon: String {
-            switch self {
-            case .cards: return "rectangle.grid.2x2"
-            case .list: return "list.bullet"
-            case .timeline: return "timeline.selection"
-            case .board: return "kanban"
-            }
-        }
-    }
-    
-    enum MissionSortOption: String, CaseIterable {
-        case priority = "Priority"
-        case deadline = "Deadline"
-        case points = "Points"
-        case difficulty = "Difficulty"
-        case progress = "Progress"
-        case alphabetical = "Alphabetical"
-        
-        var icon: String {
-            switch self {
-            case .priority: return "exclamationmark.triangle"
-            case .deadline: return "clock"
-            case .points: return "star"
-            case .difficulty: return "flame"
-            case .progress: return "chart.bar"
-            case .alphabetical: return "textformat.abc"
-            }
-        }
-    }
     
     // MARK: - Computed Properties
     private var filteredMissions: [IgnitionMissionModel] {
@@ -203,7 +100,7 @@ struct MissionsViewExpanded: View {
                 missions = missions.filter { $0.type == .daily }
             case .weekly:
                 missions = missions.filter { $0.type == .weekly }
-            case .monthly:
+            case .achievements:
                 missions = missions.filter { $0.type == .achievement }
             case .seasonal, .special:
                 missions = missions.filter { $0.type == .achievement }
@@ -320,10 +217,23 @@ struct MissionsViewExpanded: View {
                 MissionAchievementsView()
             }
             .overlay {
-                if showingCompletionOverlay {
+                if showingCompletionAnimation {
                     missionCompletionOverlay
                 }
             }
+            .fullScreenCover(isPresented: $cardManager.showCardReveal) {
+                if let card = cardManager.lastObtainedCard {
+                    CardRevealView(card: card, isPresented: $cardManager.showCardReveal)
+                }
+            }
+            .overlay(
+                Group {
+                    if cardManager.showNoCardMessage {
+                        NoCardObtainedView()
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+            )
             .sheet(isPresented: $showingMissionHistory) {
                 MissionHistoryView()
             }
@@ -344,11 +254,6 @@ struct MissionsViewExpanded: View {
             } message: {
                 Text(missionManager.error ?? "An unknown error occurred")
             }
-            .overlay(
-                missionCompletionOverlay
-                    .opacity(showingCompletionAnimation ? 1 : 0)
-                    .animation(.easeInOut(duration: 0.5), value: showingCompletionAnimation)
-            )
             .animation(.easeInOut(duration: 0.3), value: showingFilters)
         }
     }
@@ -718,6 +623,7 @@ struct MissionsViewExpanded: View {
                             audioHapticsManager.uiTapped()
                         },
                         onComplete: {
+                            print("🟢 onComplete closure called from MissionCardView for: \(mission.title)")
                             completeMission(mission)
                         },
                         onToggleFavorite: {
@@ -986,35 +892,87 @@ struct MissionsViewExpanded: View {
     // MARK: - Mission Completion Overlay
     private var missionCompletionOverlay: some View {
         ZStack {
+            // Dark backdrop
             Rectangle()
-                .fill(Color.black.opacity(0.4))
+                .fill(Color.black.opacity(0.7))
                 .ignoresSafeArea()
             
-            VStack(spacing: IgnitionSpacing.lg) {
-                // Celebration Animation
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.green)
-                    .scaleEffect(showingCompletionAnimation ? 1.2 : 0.8)
-                    .animation(.spring(response: 0.6, dampingFraction: 0.6), value: showingCompletionAnimation)
-                
-                VStack(spacing: IgnitionSpacing.sm) {
-                    Text("Mission Completed!")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+            // Confetti particles
+            ForEach(0..<30, id: \.self) { index in
+                ConfettiParticle(index: index, isAnimating: showingCompletionAnimation)
+            }
+            
+            // Main card
+            VStack(spacing: IgnitionSpacing.xl) {
+                // Trophy with glow
+                ZStack {
+                    Circle()
+                        .fill(IgnitionColors.goldAccent.opacity(0.3))
+                        .frame(width: 140, height: 140)
+                        .scaleEffect(showingCompletionAnimation ? 1.2 : 0.5)
+                        .opacity(showingCompletionAnimation ? 1 : 0)
+                        .animation(.easeOut(duration: 0.8), value: showingCompletionAnimation)
                     
-                    Text("You earned \(completedMissionReward) points!")
-                        .font(.headline)
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 70))
+                        .foregroundColor(IgnitionColors.goldAccent)
+                        .scaleEffect(showingCompletionAnimation ? 1.0 : 0.3)
+                        .rotationEffect(.degrees(showingCompletionAnimation ? 0 : -180))
+                        .opacity(showingCompletionAnimation ? 1 : 0)
+                        .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.2), value: showingCompletionAnimation)
+                        .goldGlow(radius: 20)
+                }
+                .frame(height: 140)
+                
+                VStack(spacing: IgnitionSpacing.md) {
+                    Text("Mission Completed!")
+                        .font(.system(size: 32, weight: .heavy, design: .rounded))
                         .foregroundColor(.white)
+                        .scaleEffect(showingCompletionAnimation ? 1 : 0.5)
+                        .opacity(showingCompletionAnimation ? 1 : 0)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.3), value: showingCompletionAnimation)
+                    
+                    HStack(spacing: IgnitionSpacing.xs) {
+                        Image(systemName: "flame.fill")
+                            .foregroundColor(IgnitionColors.ignitionOrange)
+                        
+                        Text("+\(completedMissionReward)")
+                            .font(.system(size: 42, weight: .black, design: .rounded))
+                            .foregroundColor(IgnitionColors.goldAccent)
+                            .goldGlow(radius: 8)
+                        
+                        Text("POINTS")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(IgnitionColors.goldAccent.opacity(0.8))
+                    }
+                    .scaleEffect(showingCompletionAnimation ? 1 : 0.3)
+                    .opacity(showingCompletionAnimation ? 1 : 0)
+                    .animation(.spring(response: 0.7, dampingFraction: 0.6).delay(0.4), value: showingCompletionAnimation)
                 }
                 
-                Button("Awesome!") {
-                    showingCompletionAnimation = false
-                    audioHapticsManager.missionCompleted()
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        showingCompletionAnimation = false
+                    }
+                }) {
+                    Text("AWESOME!")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, IgnitionSpacing.md)
+                        .background(
+                            LinearGradient(
+                                colors: [IgnitionColors.ignitionOrange, IgnitionColors.fireRed],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(IgnitionRadius.lg)
+                        .shadow(color: IgnitionColors.ignitionOrange.opacity(0.5), radius: 10, x: 0, y: 5)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.green)
+                .scaleEffect(showingCompletionAnimation ? 1 : 0.8)
+                .opacity(showingCompletionAnimation ? 1 : 0)
+                .animation(.easeOut(duration: 0.4).delay(0.6), value: showingCompletionAnimation)
             }
             .padding(IgnitionSpacing.xl)
         }
@@ -1063,23 +1021,7 @@ struct MissionsViewExpanded: View {
             queue: .main
         ) { notification in
             if let mission = notification.object as? IgnitionMissionModel {
-                showMissionCompletionAnimation(mission: mission)
-            }
-        }
-    }
-    
-    private func showMissionCompletionAnimation(mission: IgnitionMissionModel) {
-        completedMissionTitle = mission.title
-        completedMissionReward = mission.rewardPoints
-        
-        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
-            showingCompletionOverlay = true
-        }
-        
-        // Auto-dismiss after 3 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            withAnimation(.easeOut(duration: 0.3)) {
-                showingCompletionOverlay = false
+                completeMission(mission)
             }
         }
     }
@@ -1148,16 +1090,29 @@ struct MissionsViewExpanded: View {
     }
     
     private func completeMission(_ mission: IgnitionMissionModel) {
+        print("🎯 Completing mission: \(mission.title)")
+        
         missionToComplete = mission
         completedMissionReward = mission.rewardPoints
+        completedMissionTitle = mission.title
         
-        missionManager.completeMission(mission)
+        // Show celebration animation FIRST
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            showingCompletionAnimation = true
+        }
         
-        showingCompletionAnimation = true
         audioHapticsManager.missionCompleted()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            showingCompletionAnimation = false
+        // Complete mission in manager AFTER animation starts (delay 0.5s)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.missionManager.completeMission(mission)
+        }
+        
+        // Auto-dismiss after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            withAnimation(.easeOut(duration: 0.3)) {
+                showingCompletionAnimation = false
+            }
         }
     }
     
@@ -1207,7 +1162,7 @@ struct MissionsViewExpanded: View {
     
     private func formatDateForTimeline(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         
         if Calendar.current.isDateInToday(date) {
             return "Today"
@@ -1321,6 +1276,7 @@ struct MissionCardView: View {
                 // Action Button or Time Until Expiry
                 if mission.status == .available && missionProgress >= 1.0 {
                     Button("Complete") {
+                        print("🔘 Complete button tapped for mission: \(mission.title)")
                         onComplete()
                     }
                     .font(.caption)
@@ -1353,7 +1309,7 @@ struct MissionCardView: View {
     
     private func timeUntilExpiry(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -1459,17 +1415,17 @@ struct MissionRowView: View {
             onTap()
         }
         .contextMenu {
-            Button("Dettagli", systemImage: "info.circle") {
+            Button("Details", systemImage: "info.circle") {
                 onTap()
             }
             
-            Button(mission.isFavorite ? "Rimuovi dai Preferiti" : "Aggiungi ai Preferiti", 
+            Button(mission.isFavorite ? "Remove from Favorites" : "Add to Favorites", 
                    systemImage: mission.isFavorite ? "heart.slash" : "heart") {
                 onToggleFavorite()
             }
             
             if mission.status == .available && missionProgress >= 1.0 {
-                Button("Completa", systemImage: "checkmark.circle") {
+                Button("Complete", systemImage: "checkmark.circle") {
                     onComplete()
                 }
             }
@@ -1482,7 +1438,7 @@ struct MissionRowView: View {
     
     private func timeUntilExpiry(_ date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -1523,7 +1479,7 @@ struct MissionTimelineItemView: View {
                     Spacer()
                     
                     if mission.status == .available && missionProgress >= 1.0 {
-                        Button("Completa") {
+                        Button("Complete") {
                             onComplete()
                         }
                         .font(.caption2)
@@ -1680,7 +1636,7 @@ struct MissionBoardCardView: View {
             
             // Action
             if mission.status == .available && missionProgress >= 1.0 {
-                Button("Completa") {
+                Button("Complete") {
                     onComplete()
                 }
                 .font(.caption)
@@ -1879,6 +1835,81 @@ struct MissionDetailView: View {
             .navigationTitle(mission.title)
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+// MARK: - Confetti Particle View
+struct ConfettiParticle: View {
+    let index: Int
+    let isAnimating: Bool
+    
+    @State private var offsetY: CGFloat = -50
+    @State private var offsetX: CGFloat = 0
+    @State private var rotation: Double = 0
+    @State private var opacity: Double = 0
+    
+    private let colors: [Color] = [
+        IgnitionColors.ignitionOrange,
+        IgnitionColors.goldAccent,
+        IgnitionColors.fireRed,
+        .yellow,
+        .green,
+        .purple
+    ]
+    
+    var body: some View {
+        Circle()
+            .fill(colors[index % colors.count])
+            .frame(width: CGFloat.random(in: 8...16), height: CGFloat.random(in: 8...16))
+            .offset(x: offsetX, y: offsetY)
+            .rotationEffect(.degrees(rotation))
+            .opacity(opacity)
+            .onAppear {
+                if isAnimating {
+                    startAnimation()
+                }
+            }
+            .onChange(of: isAnimating) { _, newValue in
+                if newValue {
+                    startAnimation()
+                } else {
+                    resetAnimation()
+                }
+            }
+    }
+    
+    private func startAnimation() {
+        let baseDelay = Double(index) * 0.02
+        let randomX = CGFloat.random(in: -150...150)
+        let randomRotation = Double.random(in: 0...720)
+        let fallDistance = CGFloat.random(in: 400...700)
+        
+        withAnimation(.easeOut(duration: 0.3).delay(baseDelay)) {
+            opacity = 1
+        }
+        
+        withAnimation(.easeIn(duration: 1.5).delay(baseDelay)) {
+            offsetY = fallDistance
+        }
+        
+        withAnimation(.easeInOut(duration: 1.5).delay(baseDelay)) {
+            offsetX = randomX
+        }
+        
+        withAnimation(.linear(duration: 1.5).delay(baseDelay)) {
+            rotation = randomRotation
+        }
+        
+        withAnimation(.easeIn(duration: 0.5).delay(baseDelay + 1.0)) {
+            opacity = 0
+        }
+    }
+    
+    private func resetAnimation() {
+        offsetY = -50
+        offsetX = 0
+        rotation = 0
+        opacity = 0
     }
 }
 

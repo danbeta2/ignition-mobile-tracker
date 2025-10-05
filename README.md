@@ -30,35 +30,76 @@ The heart of the app - a flexible system for capturing moments of action and ins
 - **Points System**: Earn points based on category and intensity (e.g., Energy spark at extreme intensity = more points than an Idea spark at low intensity)
 
 ### 2. **Mission System**
-41 permanent, fixed missions that reset daily, weekly, or remain as lifetime achievements.
+43 permanent, fixed missions that reset daily, weekly, or remain as lifetime achievements.
 
 - **Mission Types:**
-  - **Daily Missions (15)**: Reset every day at midnight
-  - **Weekly Missions (15)**: Reset every Monday
-  - **Achievement Missions (11)**: Lifetime goals related to card collection
+  - **Daily Missions (5)**: Reset every day at midnight
+  - **Weekly Missions (10)**: Reset every Monday
+  - **Achievement Missions (28)**: Permanent lifetime goals that never reset
 
 - **Difficulty Tiers:**
-  - **Easy**: Quick wins for building momentum (50-100 points)
-  - **Medium**: Regular engagement (75-300 points)
-  - **Hard**: Sustained effort (200-750 points)
-  - **Expert**: Maximum commitment (500-5000 points)
+  - **Easy**: Quick wins for building momentum (50-200 points)
+  - **Medium**: Regular engagement (75-450 points)
+  - **Hard**: Sustained effort (300-1500 points)
+  - **Expert**: Maximum commitment (500-10000 points)
 
-- **Example Missions:**
-  - **Daily**: "Morning Spark" - Create 1 spark before 12:00 PM (50 points)
-  - **Weekly**: "Weekly Warrior" - Complete 20 sparks this week (500 points)
-  - **Achievement**: "First Card" - Collect your first Spark Card (100 points)
-  - **Achievement**: "Master of Decision" - Complete the Decision category (10 cards, 750 points)
-  - **Achievement**: "Legendary Collector" - Collect all 3 Legendary cards (2000 points)
-  - **Achievement**: "Completionist" - Collect all 50 Spark Cards (5000 points)
+- **Daily Missions (5):**
+  - ☀️ Morning Spark - Create 1 spark before 12 PM (50 pts)
+  - 🔥 Spark Streak - Create 3 sparks today (100 pts)
+  - 💡 Idea Generator - Create 1 Idea spark (60 pts)
+  - ⚡ Energy Boost - Complete 2 Energy sparks (75 pts)
+  - 🚀 High Intensity - Create 1 High/Extreme intensity spark (80 pts)
 
-- **Card Collection Achievements:**
-  - First Card (1 card): 100 points
-  - Rare Collector (5 Rare cards): 300 points
-  - Epic Hunter (1 Epic card): 500 points
-  - Legendary Status (1 Legendary card): 1000 points
-  - Master of [Category] (10 cards per category): 750 points each
-  - Legendary Collector (3 Legendary cards): 2000 points
-  - Completionist (all 50 cards): 5000 points
+- **Weekly Missions (10):**
+  - 🛡️ Weekly Warrior - Complete 15 sparks (400 pts)
+  - 🏆 Challenge Master - Complete 5 Challenge sparks (350 pts)
+  - 🏭 Idea Factory - Generate 7 Idea sparks (350 pts)
+  - 💥 Energy Dynamo - Complete 10 Energy sparks (400 pts)
+  - 📅 Consistent Creator - Create 1 spark every day (500 pts)
+  - 🌈 Diversity Champion - Use all 5 spark categories (600 pts)
+  - 🎯 Decision Week - Make 5 Decision sparks (300 pts)
+  - 💰 Point Collector - Earn 800 points this week (600 pts)
+  - ⚡ Intensity Champion - Create 5 high/extreme intensity sparks (450 pts)
+  - 🎖️ Grand Achiever - Complete 3 daily missions this week (500 pts)
+
+- **Achievement Missions (28):**
+  
+  **Card Collection (12 missions):**
+  - First Card (1): 100 pts
+  - Rare Collector (5 Rare): 300 pts
+  - Epic Hunter (1 Epic): 500 pts
+  - Legendary Status (1 Legendary): 1000 pts
+  - Card Collector (25 cards): 1500 pts
+  - Master of Decision (10): 750 pts
+  - Master of Energy (10): 750 pts
+  - Master of Ideas (10): 750 pts
+  - Master of Experiments (10): 750 pts
+  - Master of Challenges (10): 750 pts
+  - Legendary Collector (3): 2000 pts
+  - Completionist (50 cards): 5000 pts
+  
+  **Spark Milestones (5 missions):**
+  - First Steps (10 total): 200 pts
+  - Rising Star (50): 500 pts
+  - Spark Veteran (100): 1000 pts
+  - Spark Master (500): 3000 pts
+  - Spark Legend (1000): 10000 pts
+  
+  **Points Milestones (4 missions):**
+  - Point Starter (1K): 200 pts
+  - Point Earner (5K): 500 pts
+  - Point Collector (10K): 1500 pts
+  - Point Master (50K): 5000 pts
+  
+  **Streak Milestones (3 missions):**
+  - Week Warrior (7 days): 300 pts
+  - Month Champion (30 days): 1000 pts
+  - Unstoppable (100 days): 5000 pts
+  
+  **Overload Milestones (3 missions):**
+  - First Overload (1): 500 pts
+  - Overload Addict (5): 1500 pts
+  - Overload Master (10): 3000 pts
 
 - **Features:**
   - Auto-reset mechanism using UserDefaults and Timer for daily/weekly missions
@@ -292,16 +333,25 @@ Personalize the app experience.
    - MissionManager checks for progress updates (e.g., "Create 5 sparks today")
 4. UI refreshes automatically via @Published properties
 
-### Mission Reset
-1. App initializes 30 fixed missions on first launch (via `initializeFixedMissions()`)
-2. Timer runs every minute checking current time
-3. At midnight:
-   - Daily missions reset progress to 0, status to available
-   - `lastDailyReset` updated in UserDefaults
-4. On Monday:
-   - Weekly missions reset progress to 0, status to available
-   - `lastWeeklyReset` updated in UserDefaults
-5. User progress persists until next reset cycle
+### Mission Reset & Tracking
+1. App initializes 43 fixed missions on first launch (via `initializeFixedMissions()`)
+   - 5 Daily, 10 Weekly, 28 Achievement (permanent)
+2. Reset mechanism:
+   - Checks on app foreground entry (battery-efficient)
+   - At midnight: Daily missions reset progress to 0, status to available
+   - On Monday: Weekly missions reset progress to 0, status to available
+   - Achievement missions never reset
+3. Progress tracking:
+   - Spark-based missions: Auto-update via NotificationCenter observer
+   - Card missions: Track via CardManager events
+   - Points/Streak/Overload: Pull from UserProfile
+   - Total spark count: Query from SparkManager
+4. Mission completion:
+   - Auto-complete when progress reaches target
+   - Award reward points to user profile
+   - Post `.missionCompleted` notification
+   - Show global toast notification (appears after card reveal if applicable)
+   - Play haptic feedback and sound effects
 
 ### Card Drop Logic
 1. Spark created and saved
@@ -339,7 +389,7 @@ Personalize the app experience.
 
 5. On first launch:
    - App initializes user profile
-   - Creates 30 fixed missions
+   - Creates 43 fixed missions (5 Daily, 10 Weekly, 28 Achievement)
    - Initializes 50 spark cards in Core Data
    - Requests notification permissions
 

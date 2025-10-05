@@ -123,6 +123,9 @@ enum IgnitionLevel: Int, CaseIterable {
         if next == nil {
             // Max level reached
             progressToNext = 1.0
+        } else if pointsNeededForNextLevel <= 0 {
+            // Edge case: should never happen, but prevent division by zero
+            progressToNext = 0.0
         } else {
             progressToNext = min(1.0, Double(pointsInCurrentLevel) / Double(pointsNeededForNextLevel))
         }

@@ -286,7 +286,7 @@ struct AddSparkView: View {
     // MARK: - Time Estimation Section
     private var timeEstimationSection: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
-            Text("Tempo Stimato (opzionale)")
+            Text("Estimated Time (optional)")
                 .font(IgnitionFonts.title3)
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.textColor)
@@ -298,7 +298,7 @@ struct AddSparkView: View {
                     Image(systemName: "clock")
                         .foregroundColor(themeManager.primaryColor)
                     
-                    Text(estimatedTime != nil ? "\(estimatedTime!) minuti" : "Seleziona tempo")
+                    Text(estimatedTime != nil ? "\(estimatedTime!) minutes" : "Select time")
                         .font(IgnitionFonts.body)
                         .foregroundColor(estimatedTime != nil ? themeManager.textColor : IgnitionColors.secondaryText)
                     
@@ -398,7 +398,7 @@ struct TimePickerView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: IgnitionSpacing.lg) {
-                Text("Seleziona Tempo Stimato")
+                Text("Select Estimated Time")
                     .font(IgnitionFonts.title2)
                     .fontWeight(.bold)
                     .foregroundColor(themeManager.textColor)

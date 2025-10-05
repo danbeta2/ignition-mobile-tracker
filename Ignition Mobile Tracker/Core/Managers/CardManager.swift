@@ -20,6 +20,7 @@ class CardManager: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var lastObtainedCard: SparkCardModel?
     @Published var showCardReveal: Bool = false
+    @Published var showNoCardMessage: Bool = false
     
     // MARK: - Computed Properties
     var totalCardsCount: Int {
@@ -156,6 +157,15 @@ class CardManager: ObservableObject {
     /// Triggers a card drop for a specific spark category
     /// Returns the obtained card (if any) and bonus points for duplicates
     func triggerCardDrop(for category: SparkCategory) -> (card: SparkCardModel?, bonusPoints: Int, isNew: Bool) {
+        // FIRST: Check if a card drops at all (40% drop rate)
+        let dropChance = Double.random(in: 0...1)
+        let dropRate = 0.40 // 40% chance to get a card
+        
+        if dropChance > dropRate {
+            print("🎴 No card dropped this time (rolled \(String(format: "%.2f", dropChance)) > \(dropRate))")
+            return (nil, 0, false)
+        }
+        
         // Get all cards for this category
         let categoryCards = allCards.filter { $0.category == category }
         

@@ -44,11 +44,10 @@ enum TabRoute: String, CaseIterable {
 }
 
 // MARK: - Secondary Routes
+// Note: Stats and Settings are presented as sheets, not navigation routes
 enum SecondaryRoute: String, CaseIterable {
     case achievements = "achievements"
     case collectibles = "collectibles"
-    case settings = "settings"
-    case stats = "stats"
     case sparkDetail = "spark_detail"
     case missionDetail = "mission_detail"
     case tableDetail = "table_detail"
@@ -58,8 +57,6 @@ enum SecondaryRoute: String, CaseIterable {
         switch self {
         case .achievements: return "Achievements"
         case .collectibles: return "Collections"
-        case .settings: return "Settings"
-        case .stats: return "Statistics"
         case .sparkDetail: return "Spark Detail"
         case .missionDetail: return "Mission Detail"
         case .tableDetail: return "Table Detail"

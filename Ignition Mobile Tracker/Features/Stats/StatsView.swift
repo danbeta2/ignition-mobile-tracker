@@ -414,10 +414,10 @@ struct StatsView: View {
         if currentStreak > 0 {
             insights.append(StatsInsightData(
                 icon: "flame.fill",
-                title: "Streak Attiva",
+                title: "Active Streak",
                 description: currentStreak == longestStreak ? 
-                    "Hai raggiunto il tuo record di \(currentStreak) giorni!" :
-                    "Continua così! Record da battere: \(longestStreak) giorni",
+                    "You've reached your record of \(currentStreak) days!" :
+                    "Keep it up! Record to beat: \(longestStreak) days",
                 color: currentStreak == longestStreak ? .green : .orange
             ))
         }

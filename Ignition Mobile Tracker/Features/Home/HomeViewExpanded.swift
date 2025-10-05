@@ -19,6 +19,7 @@ struct HomeViewExpanded: View {
     // MARK: - State Variables
     @State private var showingOverloadEffects = false
     @State private var overloadAnimationScale: CGFloat = 1.0
+    @State private var showingStats = false
     @State private var showingSettings = false
     @State private var showingNotifications = false
     @State private var showingQuickAdd = false
@@ -127,6 +128,9 @@ struct HomeViewExpanded: View {
                     .opacity(showingOverloadEffects ? 1 : 0)
                     .animation(.easeInOut(duration: 0.5), value: showingOverloadEffects)
             )
+            .sheet(isPresented: $showingStats) {
+                StatsViewExpanded()
+            }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
@@ -543,7 +547,7 @@ struct HomeViewExpanded: View {
                     icon: "chart.bar.fill",
                     color: .purple,
                     action: {
-                        tabRouter.navigate(to: .stats)
+                        showingStats = true
                         audioHapticsManager.uiTapped()
                     }
                 )
@@ -1065,13 +1069,13 @@ struct HomeViewExpanded: View {
     private var fuelStatusText: String {
         let percentage = userProfileManager.getCurrentFuelPercentage()
         if userProfileManager.isInOverloadMode() {
-            return "Modalità Overload Attiva! 🔥"
+            return "Overload Mode Active! 🔥"
         } else if percentage < 0.3 {
-            return "Livello carburante basso. Crea più Spark!"
+            return "Fuel level low. Create more Sparks!"
         } else if percentage < 0.7 {
-            return "Buon livello di energia. Continua così!"
+            return "Good energy level. Keep it up!"
         } else {
-            return "Energia al massimo! Sei in fiamme! 🔥"
+            return "Energy at maximum! You're on fire! 🔥"
         }
     }
     
@@ -1137,16 +1141,16 @@ struct HomeViewExpanded: View {
     
     private var dailyTip: String {
         let tips = [
-            "Inizia la giornata con un piccolo Spark per dare il tono positivo!",
-            "Le decisioni prese al mattino tendono ad essere più efficaci.",
-            "Prova a sperimentare qualcosa di nuovo oggi, anche se piccolo.",
-            "Rifletti sui tuoi progressi: ogni Spark conta!",
-            "Le sfide più difficili spesso portano ai risultati migliori.",
-            "Mantieni la costanza: piccoli passi quotidiani fanno grandi differenze.",
-            "Celebra i piccoli successi lungo il percorso!",
-            "L'energia cresce con l'azione: più Spark crei, più energia avrai.",
-            "Condividi i tuoi progressi con qualcuno che ti supporta.",
-            "Ricorda: ogni esperto è stato una volta un principiante."
+            "Start your day with a small Spark to set a positive tone!",
+            "Morning decisions tend to be more effective.",
+            "Try experimenting with something new today, even if small.",
+            "Reflect on your progress: every Spark counts!",
+            "The toughest challenges often lead to the best results.",
+            "Stay consistent: small daily steps make big differences.",
+            "Celebrate small successes along the way!",
+            "Energy grows with action: the more Sparks you create, the more energy you'll have.",
+            "Share your progress with someone who supports you.",
+            "Remember: every expert was once a beginner."
         ]
         
         let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
@@ -1201,13 +1205,13 @@ struct HomeViewExpanded: View {
     private func formatNumber(_ number: Int) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         return formatter.string(from: NSNumber(value: number)) ?? "\(number)"
     }
     
     private func timeAgoString(from date: Date) -> String {
         let formatter = RelativeDateTimeFormatter()
-        formatter.locale = Locale(identifier: "it_IT")
+        formatter.locale = Locale.current
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
     }
@@ -1315,16 +1319,16 @@ struct QuickAddSparkView: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("Aggiungi Spark Veloce")
+                Text("Quick Add Spark")
                     .font(.largeTitle)
                     .padding()
                 
-                Text("Qui verrà implementata l'aggiunta rapida di Spark")
+                Text("Quick Spark addition will be implemented here")
                     .foregroundColor(.secondary)
                 
                 Spacer()
             }
-            .navigationTitle("Nuovo Spark")
+            .navigationTitle("New Spark")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

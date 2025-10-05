@@ -26,7 +26,6 @@ struct StatsViewExpanded: View {
     @State private var showingComparison = false
     @State private var showingPredictions = false
     @State private var showingGoals = false
-    @State private var showingInsights = false
     @State private var showingCustomReport = false
     @State private var showingDataBreakdown = false
     
@@ -181,9 +180,6 @@ struct StatsViewExpanded: View {
             }
             .sheet(isPresented: $showingGoals) {
                 GoalsAnalyticsView()
-            }
-            .sheet(isPresented: $showingInsights) {
-                DetailedInsightsView(insights: insights)
             }
             .sheet(isPresented: $showingCustomReport) {
                 CustomReportView()
@@ -650,19 +646,12 @@ struct StatsViewExpanded: View {
     private var quickInsightsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
             HStack {
-                Text("Insights Rapidi")
+                Text("Quick Insights")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
-                
-                Button("Vedi Tutti") {
-                    showingInsights = true
-                    audioHapticsManager.uiTapped()
-                }
-                .font(.caption)
-                .foregroundColor(themeManager.primaryColor)
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
@@ -1054,7 +1043,7 @@ struct StatsViewExpanded: View {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) {
                 ForEach(0..<168, id: \.self) { index in
                     Rectangle()
-                        .fill(Color.random.opacity(Double.random(in: 0.1...0.8)))
+                        .fill(IgnitionColors.ignitionOrange.opacity(Double.random(in: 0.1...0.8)))
                         .frame(height: 20)
                         .cornerRadius(2)
                 }
@@ -1334,15 +1323,6 @@ struct StatsViewExpanded: View {
                 Image(systemName: "ellipsis.circle")
                     .foregroundColor(themeManager.primaryColor)
             }
-            
-            Button(action: {
-                showingInsights = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "lightbulb.fill")
-                    .foregroundColor(themeManager.primaryColor)
-                    .font(.title3)
-            }
         }
     }
     
@@ -1371,12 +1351,23 @@ struct StatsViewExpanded: View {
         let startDate = calendar.startOfDay(for: dateRange.start)
         let endDate = calendar.startOfDay(for: dateRange.end)
         
+        // Guard against invalid date ranges
+        guard startDate <= endDate else {
+            print("⚠️ Invalid date range: start > end")
+            return []
+        }
+        
         var data: [ChartDataPoint] = []
         var currentDate = startDate
+        var iterationCount = 0
+        let maxIterations = 1000 // Safety limit: max 1000 days (~3 years)
         
-        while currentDate <= endDate {
+        while currentDate <= endDate && iterationCount < maxIterations {
             let dayStart = currentDate
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+            guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: currentDate) else {
+                print("⚠️ Failed to calculate dayEnd for date: \(currentDate)")
+                break
+            }
             
             let daySparks = filteredSparks.filter { spark in
                 spark.createdAt >= dayStart && spark.createdAt < dayEnd
@@ -1407,7 +1398,18 @@ struct StatsViewExpanded: View {
             }
             
             data.append(ChartDataPoint(date: currentDate, value: value))
-            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+            
+            // Safely increment currentDate
+            guard let nextDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else {
+                print("⚠️ Failed to increment date, breaking loop")
+                break
+            }
+            currentDate = nextDate
+            iterationCount += 1
+        }
+        
+        if iterationCount >= maxIterations {
+            print("⚠️ Chart data generation hit max iterations limit")
         }
         
         return data
@@ -1754,18 +1756,6 @@ struct PredictionData: Identifiable {
     let timeframe: String
 }
 
-// MARK: - Extensions
-
-extension Color {
-    static var random: Color {
-        return Color(
-            red: .random(in: 0...1),
-            green: .random(in: 0...1),
-            blue: .random(in: 0...1)
-        )
-    }
-}
-
 // MARK: - Placeholder Views for Sheets
 
 struct ExportAnalyticsView: View {
@@ -1844,27 +1834,6 @@ struct GoalsAnalyticsView: View {
                 Spacer()
             }
             .navigationTitle("Goals")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct DetailedInsightsView: View {
-    let insights: [InsightData]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Insights Dettagliati")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrati tutti gli insights")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Insights")
             .navigationBarTitleDisplayMode(.inline)
         }
     }

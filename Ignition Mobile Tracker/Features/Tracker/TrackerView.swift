@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TrackerView: View {
     @StateObject private var sparkManager = SparkManager.shared
+    @StateObject private var cardManager = CardManager.shared
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @Environment(\.themeManager) private var themeManager
     @Environment(\.tabRouter) private var tabRouter
@@ -27,45 +28,60 @@ struct TrackerView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Search and Filter Bar
-                searchAndFilterSection
-                
-                // Content
-                if sparkManager.isLoading {
-                    loadingView
-                } else if filteredSparks.isEmpty {
-                    emptyStateView
-                } else {
-                    sparkListView
+        ZStack {
+            NavigationStack {
+                VStack(spacing: 0) {
+                    // Search and Filter Bar
+                    searchAndFilterSection
+                    
+                    // Content
+                    if sparkManager.isLoading {
+                        loadingView
+                    } else if filteredSparks.isEmpty {
+                        emptyStateView
+                    } else {
+                        sparkListView
+                    }
+                }
+                .background(themeManager.backgroundColor)
+                .navigationTitle("Tracker")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        addSparkButton
+                    }
+                }
+                .sheet(isPresented: $showingAddSpark) {
+                    AddSparkView()
+                }
+                .alert("Errore", isPresented: $showingError) {
+                    Button("OK") { }
+                } message: {
+                    Text(sparkManager.error ?? "Si è verificato un errore imprevisto")
+                }
+                .onChange(of: sparkManager.error) { _, error in
+                    showingError = error != nil
+                }
+                .onAppear {
+                    // Check if we need to show AddSpark from QuickActions
+                    if tabRouter.shouldShowAddSpark {
+                        showingAddSpark = true
+                        tabRouter.shouldShowAddSpark = false
+                    }
                 }
             }
-            .background(themeManager.backgroundColor)
-            .navigationTitle("Tracker")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    addSparkButton
-                }
+            
+            // Card Reveal - Full screen cover OUTSIDE NavigationStack
+            if cardManager.showCardReveal, let card = cardManager.lastObtainedCard {
+                CardRevealView(card: card, isPresented: $cardManager.showCardReveal)
+                    .zIndex(1000)
             }
-            .sheet(isPresented: $showingAddSpark) {
-                AddSparkView()
-            }
-            .alert("Errore", isPresented: $showingError) {
-                Button("OK") { }
-            } message: {
-                Text(sparkManager.error ?? "Si è verificato un errore imprevisto")
-            }
-            .onChange(of: sparkManager.error) { _, error in
-                showingError = error != nil
-            }
-            .onAppear {
-                // Check if we need to show AddSpark from QuickActions
-                if tabRouter.shouldShowAddSpark {
-                    showingAddSpark = true
-                    tabRouter.shouldShowAddSpark = false
-                }
+            
+            // No Card Popup - OUTSIDE NavigationStack with high z-index
+            if cardManager.showNoCardMessage {
+                NoCardObtainedView()
+                    .transition(.scale.combined(with: .opacity))
+                    .zIndex(999)
             }
         }
     }

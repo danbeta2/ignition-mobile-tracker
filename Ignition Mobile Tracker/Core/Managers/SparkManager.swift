@@ -97,6 +97,26 @@ class SparkManager: ObservableObject {
                     object: cardDrop.bonusPoints
                 )
             }
+        } else {
+            // No card obtained - show "no card" message
+            print("🎴 No card obtained this time - showing popup NOW")
+            print("🎴 CardManager.showNoCardMessage = \(CardManager.shared.showNoCardMessage)")
+            
+            // Show with animation on main thread
+            DispatchQueue.main.async {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                    CardManager.shared.showNoCardMessage = true
+                    print("🎴 Popup flag set to TRUE")
+                }
+                
+                // Auto-dismiss after 5 seconds (increased for visibility)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        CardManager.shared.showNoCardMessage = false
+                        print("🎴 Popup flag set to FALSE (dismissed)")
+                    }
+                }
+            }
         }
         
         // Notify other managers
