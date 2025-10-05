@@ -58,10 +58,14 @@ class MissionManager: ObservableObject {
         // Listen for spark events to update mission progress
         NotificationCenter.default.publisher(for: .sparkAdded)
             .sink { [weak self] notification in
+                print("🔔 MissionManager received .sparkAdded notification")
                 if let spark = notification.object as? SparkModel {
+                    print("📢 Processing spark for mission progress: \(spark.title) (\(spark.category.displayName))")
                     Task { @MainActor in
                         self?.updateMissionProgress(for: spark)
                     }
+                } else {
+                    print("⚠️ .sparkAdded notification received but no spark object found")
                 }
             }
             .store(in: &cancellables)
@@ -69,10 +73,14 @@ class MissionManager: ObservableObject {
         // Listen for card obtained events to update card achievement missions
         NotificationCenter.default.publisher(for: .cardObtained)
             .sink { [weak self] notification in
+                print("🔔 MissionManager received .cardObtained notification")
                 if let card = notification.object as? SparkCardModel {
+                    print("📢 Processing card for mission progress: \(card.displayTitle)")
                     Task { @MainActor in
                         self?.updateCardMissionProgress(for: card)
                     }
+                } else {
+                    print("⚠️ .cardObtained notification received but no card object found")
                 }
             }
             .store(in: &cancellables)
@@ -178,7 +186,9 @@ class MissionManager: ObservableObject {
     
     // MARK: - Mission Progress
     private func updateMissionProgress(for spark: SparkModel) {
+        print("🎯 updateMissionProgress called for spark: \(spark.title)")
         let activeMissions = missions.filter { $0.status != .completed && $0.status != .expired }
+        print("📊 Found \(activeMissions.count) active missions to check")
         
         for mission in activeMissions {
             var shouldUpdate = false
@@ -263,9 +273,11 @@ class MissionManager: ObservableObject {
             }
             
             if shouldUpdate {
+                print("   ✅ Updating mission: \(mission.title) - Progress: \(mission.currentProgress) → \(newProgress)")
                 updateMissionProgressValue(mission, newProgress: newProgress)
             }
         }
+        print("🏁 Finished checking all missions for spark update")
     }
     
     private func updateMissionProgressValue(_ mission: IgnitionMissionModel, newProgress: Int) {
@@ -308,8 +320,10 @@ class MissionManager: ObservableObject {
     
     /// Updates progress for card-related achievement missions
     private func updateCardMissionProgress(for card: SparkCardModel) {
+        print("🎯 updateCardMissionProgress called for card: \(card.displayTitle)")
         let cardManager = CardManager.shared
         let activeMissions = missions.filter { $0.status != .completed && $0.type == .achievement }
+        print("📊 Found \(activeMissions.count) active achievement missions")
         
         for mission in activeMissions {
             var shouldUpdate = false
@@ -320,6 +334,7 @@ class MissionManager: ObservableObject {
                 // Count total owned cards
                 newProgress = cardManager.ownedCardsCount
                 shouldUpdate = true
+                print("🎴 First Card mission - Current cards: \(newProgress), Target: \(mission.targetValue)")
                 
             case "Rare Collector":
                 // Count rare cards

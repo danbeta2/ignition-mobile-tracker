@@ -13,6 +13,7 @@ struct MainTabView: View {
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @StateObject private var errorManager = ErrorManager.shared
     @StateObject private var cardManager = CardManager.shared
+    @StateObject private var missionManager = MissionManager.shared
     
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     
