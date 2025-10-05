@@ -219,10 +219,6 @@ class SparkManager: ObservableObject {
         
         return streak
     }
-    
-    // MARK: - Core Data Conversion Helpers
-    // TODO: Add these methods when Core Data model is properly set up
-    
 }
 
 // MARK: - Notification Names

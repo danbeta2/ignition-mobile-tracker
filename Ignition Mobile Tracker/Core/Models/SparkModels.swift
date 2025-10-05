@@ -598,5 +598,3 @@ struct SparkCardModel: Identifiable, Codable, Hashable {
     }
 }
 
-// MARK: - Core Data Extensions
-// TODO: Add these extensions when Core Data model is properly set up

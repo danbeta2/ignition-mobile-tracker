@@ -454,17 +454,6 @@ class MissionManager: ObservableObject {
         }
     }
     
-    // MARK: - Deprecated Functions Removed
-    // createDailyMissions() - REMOVED
-    // createWeeklyMissions() - REMOVED
-    // generateSelfImposedMissions() - REMOVED
-    // generateAdaptiveMissions() - REMOVED
-    // generateStreakMissions() - REMOVED
-    // generateAchievementMissions() - REMOVED
-    // generateMockMissions() - REMOVED
-    
-    // All missions are now fixed and permanent in initializeFixedMissions()
-    
     // MARK: - Fixed Missions Initialization
     private func initializeFixedMissions() {
         // These missions are PERMANENT and FIXED
