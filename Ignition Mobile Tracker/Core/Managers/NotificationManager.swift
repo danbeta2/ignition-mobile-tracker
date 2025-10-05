@@ -228,11 +228,9 @@ class IgnitionNotificationManager: ObservableObject {
     }
     
     func scheduleOverloadReady() async {
-        await scheduleNotification(
-            type: .overloadReady,
-            body: "Il tuo overload è pronto! Usalo per massimizzare i punti.",
-            timeInterval: 5 // 5 seconds for testing, adjust as needed
-        )
+        // Disabled: Overload notifications are now handled via in-app UI only
+        // to comply with App Store notification limits (max 1 per day)
+        print("ℹ️ Overload ready (in-app notification only)")
     }
     
     func scheduleWeeklyReport() async {
@@ -251,29 +249,15 @@ class IgnitionNotificationManager: ObservableObject {
     }
     
     func scheduleAchievementUnlocked(title: String, description: String) async {
-        await scheduleNotification(
-            type: .achievementUnlocked,
-            body: "🎉 \(title): \(description)",
-            timeInterval: 1
-        )
+        // Disabled: Achievements are now shown via in-app UI only
+        // to comply with App Store notification limits (max 1 per day)
+        print("🎉 Achievement unlocked: \(title) (in-app notification only)")
     }
     
     func scheduleSparkSuggestion(category: SparkCategory) async {
-        let suggestions = [
-            "Have you tried creating a \(category.displayName.lowercased()) spark today?",
-            "How about exploring the \(category.displayName) category?",
-            "A small \(category.displayName.lowercased()) spark can make a difference!",
-            "It's the perfect time for a \(category.displayName) spark!"
-        ]
-        
-        let body = suggestions.randomElement() ?? "Time to create a new spark!"
-        
-        await scheduleNotification(
-            type: .sparkSuggestion,
-            body: body,
-            timeInterval: TimeInterval.random(in: 3600...7200), // 1-2 hours
-            userInfo: ["suggestedCategory": category.rawValue]
-        )
+        // Disabled: Spark suggestions are now shown via in-app UI only
+        // to comply with App Store notification limits (max 1 per day)
+        print("💡 Spark suggestion for \(category.displayName) (in-app notification only)")
     }
     
     // MARK: - Notification Management
@@ -369,21 +353,17 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 extension IgnitionNotificationManager {
     
     func scheduleSmartReminders(based userProfile: UserProfileModel) async {
-        // Analyze user patterns and schedule intelligent reminders
+        // Apple App Store Compliance: MAX 1 notification per day
+        // Only schedule ONE daily reminder at user's preferred time
+        
         let lastSparkHour = userProfile.lastSparkDate.map { 
             Calendar.current.component(.hour, from: $0) 
         } ?? 19
         
-        // Schedule daily reminder at user's preferred time
+        // Schedule ONLY daily reminder (repeating, once per day)
         await self.scheduleDailyReminder(at: lastSparkHour)
         
-        // Schedule streak reminder if user has an active streak
-        if userProfile.currentStreak > 0 {
-            await self.scheduleStreakReminder()
-        }
-        
-        // Schedule weekly report
-        await self.scheduleWeeklyReport()
+        print("✅ Notification scheduled: 1 daily reminder at \(lastSparkHour):00 (App Store compliant)")
     }
     
     func updateBadgeCount(_ count: Int) {

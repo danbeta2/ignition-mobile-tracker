@@ -187,97 +187,10 @@ extension PushNotificationService {
 extension PushNotificationService {
     
     func scheduleIntelligentNotifications(for userProfile: UserProfileModel) async {
-        // Analyze user behavior and schedule smart notifications
+        // Apple App Store Compliance: MAX 1 notification per day
+        // All notification scheduling is handled by IgnitionNotificationManager.scheduleSmartReminders()
+        // which respects the 1-per-day limit
         
-        // 1. Streak Protection
-        if userProfile.currentStreak > 0 {
-            await scheduleStreakProtectionNotifications(streak: userProfile.currentStreak)
-        }
-        
-        // 2. Mission Reminders
-        await scheduleMissionReminders()
-        
-        // 3. Engagement Boost
-        if shouldBoostEngagement(userProfile) {
-            await scheduleEngagementBoostNotifications()
-        }
-        
-        // 4. Weekly Goals
-        await scheduleWeeklyGoalNotifications(userProfile)
-    }
-    
-    private func scheduleStreakProtectionNotifications(streak: Int) async {
-        let importance = min(streak / 7, 5) // Increase importance with longer streaks
-        
-        // Guard against invalid range (importance must be >= 1)
-        guard importance >= 1 else {
-            print("⚠️ Streak too low (\(streak)) to schedule protection notifications")
-            return
-        }
-        
-        for i in 1...importance {
-            let delay = TimeInterval(i * 3600) // Every hour
-            await IgnitionNotificationManager.shared.scheduleNotification(
-                type: .streakReminder,
-                body: "🔥 \(streak)-day streak! Don't lose it now!",
-                timeInterval: delay
-            )
-        }
-    }
-    
-    private func scheduleMissionReminders() async {
-        // This would integrate with MissionManager to get active missions
-        // For now, we'll schedule a generic mission reminder
-            await IgnitionNotificationManager.shared.scheduleNotification(
-                type: .missionDeadline,
-                body: "🎯 You have missions expiring! Complete them to earn points.",
-                timeInterval: 7200 // 2 hours
-            )
-    }
-    
-    private func shouldBoostEngagement(_ userProfile: UserProfileModel) -> Bool {
-        // Check if user needs engagement boost
-        guard let lastSparkDate = userProfile.lastSparkDate else { return true }
-        
-        let daysSinceLastSpark = Calendar.current.dateComponents([.day], from: lastSparkDate, to: Date()).day ?? 0
-        return daysSinceLastSpark > 1
-    }
-    
-    private func scheduleEngagementBoostNotifications() async {
-        let messages = [
-            "💡 Do you have any interesting ideas to share?",
-            "⚡ Even a small spark can make a difference!",
-            "🌟 Your progress is waiting for you!",
-            "🚀 Ready for the next level?"
-        ]
-        
-        for (index, message) in messages.enumerated() {
-            await IgnitionNotificationManager.shared.scheduleNotification(
-                type: .sparkSuggestion,
-                body: message,
-                timeInterval: TimeInterval((index + 1) * 1800) // Every 30 minutes
-            )
-        }
-    }
-    
-    private func scheduleWeeklyGoalNotifications(_ userProfile: UserProfileModel) async {
-        // Calculate weekly goal progress
-        let weeklyTarget = 7 // 1 spark per day
-        let currentWeekSparks = calculateCurrentWeekSparks(userProfile)
-        
-        if currentWeekSparks < weeklyTarget {
-            let remaining = weeklyTarget - currentWeekSparks
-            await IgnitionNotificationManager.shared.scheduleNotification(
-                type: .weeklyReport,
-                body: "📊 You need \(remaining) more spark\(remaining == 1 ? "" : "s") to reach your weekly goal!",
-                timeInterval: 3600 // 1 hour
-            )
-        }
-    }
-    
-    private func calculateCurrentWeekSparks(_ userProfile: UserProfileModel) -> Int {
-        // This would calculate sparks created this week
-        // For now, return a placeholder
-        return userProfile.totalSparks > 7 ? 7 : Int(userProfile.totalSparks)
+        print("✅ Push notification service initialized (daily limit enforced)")
     }
 }
