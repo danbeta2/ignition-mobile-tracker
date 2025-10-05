@@ -189,34 +189,6 @@ struct HomeView: View {
         .background(IgnitionColors.headerGray)
     }
     
-    // MARK: - Header Section (Old - kept for reference)
-    private var headerSection: some View {
-        HStack {
-            Spacer()
-            
-            // Stats Button
-            Button(action: {
-                showingStats = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "chart.bar.fill")
-                    .font(.title2)
-                    .foregroundColor(themeManager.primaryColor)
-            }
-            
-            // Settings Button
-            Button(action: {
-                showingSettings = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "gear")
-                    .font(.title2)
-                    .foregroundColor(themeManager.primaryColor)
-            }
-        }
-        .padding(.top, IgnitionSpacing.sm)
-    }
-    
     // MARK: - Ignition Core Section
     private var ignitionCoreSection: some View {
         VStack(spacing: IgnitionSpacing.md) {
