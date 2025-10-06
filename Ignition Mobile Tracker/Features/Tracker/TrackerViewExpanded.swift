@@ -17,11 +17,6 @@ struct TrackerViewExpanded: View {
     
     // MARK: - State Variables
     @State private var showingAddSpark = false
-    @State private var showingBulkAdd = false
-    @State private var showingImport = false
-    @State private var showingExport = false
-    @State private var showingFilters = false
-    @State private var showingAnalytics = false
     @State private var showingError = false
     @State private var showingDeleteConfirmation = false
     @State private var showingBulkActions = false
@@ -303,40 +298,7 @@ struct TrackerViewExpanded: View {
             .sheet(isPresented: $showingAddSpark) {
                 AddSparkView()
             }
-            .sheet(isPresented: $showingBulkAdd) {
-                BulkAddSparkView()
-            }
-            .sheet(isPresented: $showingFilters) {
-                AdvancedFiltersView(
-                    selectedCategory: $selectedCategory,
-                    selectedIntensity: $selectedIntensity,
-                    selectedDateRange: Binding(
-                        get: { 
-                            if let interval = selectedDateRange.dateInterval {
-                                return interval.start...interval.end
-                            } else {
-                                let now = Date()
-                                return now...now
-                            }
-                        },
-                        set: { _ in }
-                    ),
-                    selectedTags: $selectedTags,
-                    showOnlyFavorites: $showOnlyFavorites,
-                    showOnlyWithNotes: $showOnlyWithNotes,
-                    availableTags: availableTags
-                )
-            }
-            .sheet(isPresented: $showingAnalytics) {
-                SparkAnalyticsView(sparks: filteredSparks)
-            }
-            .sheet(isPresented: $showingExport) {
-                ExportView(sparks: filteredSparks)
-            }
-            .sheet(isPresented: $showingImport) {
-                ImportView()
-            }
-                .sheet(isPresented: $showingSparkDetail) {
+            .sheet(isPresented: $showingSparkDetail) {
                     if let spark = selectedSparkForDetails {
                         SparkDetailView(spark: spark)
                     }
@@ -893,29 +855,6 @@ struct TrackerViewExpanded: View {
                         .foregroundColor(themeManager.primaryColor)
                         .font(.title2)
                 }
-                
-                // Menu with additional options
-                Menu {
-                    Button("Import", systemImage: "square.and.arrow.down") {
-                        showingImport = true
-                    }
-                    
-                    Button("Export", systemImage: "square.and.arrow.up") {
-                        showingExport = true
-                    }
-                    
-                    Button("Analytics", systemImage: "chart.bar") {
-                        showingAnalytics = true
-                    }
-                    
-                    Button("Bulk Add", systemImage: "plus.rectangle.on.rectangle") {
-                        showingBulkAdd = true
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundColor(themeManager.primaryColor)
-                        .font(.title2)
-                }
             }
         }
     }
@@ -938,17 +877,11 @@ struct TrackerViewExpanded: View {
             Spacer()
             
             if !selectedSparks.isEmpty {
-                Menu {
-                    Button("Export Selected", systemImage: "square.and.arrow.up") {
-                        bulkExport()
-                    }
-                    
-                    Button("Delete", systemImage: "trash", role: .destructive) {
-                        bulkDelete()
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .foregroundColor(themeManager.primaryColor)
+                Button(action: {
+                    bulkDelete()
+                }) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
                 }
             }
         }
@@ -1047,13 +980,6 @@ struct TrackerViewExpanded: View {
         showOnlyFavorites = false
         showOnlyWithNotes = false
         searchText = ""
-    }
-    
-    private func bulkExport() {
-        // Implement bulk export logic
-        isSelectionMode = false
-        selectedSparks.removeAll()
-        showingExport = true
     }
     
     private func bulkDelete() {
@@ -1358,114 +1284,7 @@ struct SparkTimelineItemView: View {
     }
 }
 
-// MARK: - Placeholder Views for Sheets
-
-struct BulkAddSparkView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Aggiunta Multipla")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verrà implementata l'aggiunta multipla di Spark")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Add Multiple")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct AdvancedFiltersView: View {
-    @Binding var selectedCategory: SparkCategory?
-    @Binding var selectedIntensity: SparkIntensity?
-    @Binding var selectedDateRange: ClosedRange<Date>
-    @Binding var selectedTags: Set<String>
-    @Binding var showOnlyFavorites: Bool
-    @Binding var showOnlyWithNotes: Bool
-    let availableTags: [String]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Filtri Avanzati")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno implementati i filtri avanzati")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Filtri")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct SparkAnalyticsView: View {
-    let sparks: [SparkModel]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Analisi Spark")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrate le analisi dettagliate")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Analisi")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct ExportView: View {
-    let sparks: [SparkModel]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Export Data")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Export functionality will be implemented here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Export")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct ImportView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Import Data")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Import functionality will be implemented here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Import")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
+// MARK: - Spark Detail View
 
 struct SparkDetailView: View {
     let spark: SparkModel
