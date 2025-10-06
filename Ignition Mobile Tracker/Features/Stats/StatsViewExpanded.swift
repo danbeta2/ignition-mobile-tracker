@@ -22,12 +22,6 @@ struct StatsViewExpanded: View {
     @State private var selectedChartType: ChartType = .line
     @State private var selectedAnalysisType: AnalysisType = .overview
     @State private var showingError = false
-    @State private var showingExport = false
-    @State private var showingComparison = false
-    @State private var showingPredictions = false
-    @State private var showingGoals = false
-    @State private var showingCustomReport = false
-    @State private var showingDataBreakdown = false
     
     // Advanced Analytics States
     @State private var selectedCategories: Set<SparkCategory> = Set(SparkCategory.allCases)
@@ -154,38 +148,11 @@ struct StatsViewExpanded: View {
             .background(themeManager.backgroundColor)
             .navigationTitle("Analytics")
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarLeading) {
-                    leadingToolbarItems
-                }
-                
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    trailingToolbarItems
-                }
-            }
             .onAppear {
                 setupView()
             }
             .refreshable {
                 await refreshData()
-            }
-            .sheet(isPresented: $showingExport) {
-                ExportAnalyticsView(data: chartData, stats: overviewStats)
-            }
-            .sheet(isPresented: $showingComparison) {
-                ComparisonAnalyticsView()
-            }
-            .sheet(isPresented: $showingPredictions) {
-                PredictiveAnalyticsView(predictions: predictions)
-            }
-            .sheet(isPresented: $showingGoals) {
-                GoalsAnalyticsView()
-            }
-            .sheet(isPresented: $showingCustomReport) {
-                CustomReportView()
-            }
-            .sheet(isPresented: $showingDataBreakdown) {
-                DataBreakdownView(sparks: filteredSparks)
             }
             .sheet(isPresented: $showingDatePicker) {
                 CustomDateRangeView(
@@ -1281,50 +1248,6 @@ struct StatsViewExpanded: View {
     }
     
     // MARK: - Toolbar Items
-    private var leadingToolbarItems: some View {
-        HStack {
-            Button(action: {
-                showingDataBreakdown = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "list.bullet.clipboard")
-                    .foregroundColor(themeManager.primaryColor)
-            }
-            
-            Button(action: {
-                showingComparison = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "arrow.left.arrow.right")
-                    .foregroundColor(themeManager.primaryColor)
-            }
-        }
-    }
-    
-    private var trailingToolbarItems: some View {
-        HStack {
-            Menu {
-                Button("Custom Report", systemImage: "doc.text") {
-                    showingCustomReport = true
-                }
-                
-                Button("Export Data", systemImage: "square.and.arrow.up") {
-                    showingExport = true
-                }
-                
-                Button("Predictions", systemImage: "sparkles") {
-                    showingPredictions = true
-                }
-                
-                Button("Goals", systemImage: "scope") {
-                    showingGoals = true
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .foregroundColor(themeManager.primaryColor)
-            }
-        }
-    }
     
     // MARK: - Helper Methods
     private func setupView() {
@@ -1756,128 +1679,7 @@ struct PredictionData: Identifiable {
     let timeframe: String
 }
 
-// MARK: - Placeholder Views for Sheets
-
-struct ExportAnalyticsView: View {
-    let data: [ChartDataPoint]
-    let stats: OverviewStats
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Export Analytics")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Analytics data export will be implemented here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Export")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct ComparisonAnalyticsView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Analytics Comparison")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Temporal comparisons will be implemented here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Comparisons")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct PredictiveAnalyticsView: View {
-    let predictions: [PredictionData]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Predictive Analytics")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Detailed predictions will be displayed here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Predictions")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct GoalsAnalyticsView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Goals Analytics")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Goals and progress will be managed here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Goals")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct CustomReportView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Custom Report")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Custom report generator will be implemented here")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Report")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct DataBreakdownView: View {
-    let sparks: [SparkModel]
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Breakdown Dati")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verrà mostrato il breakdown dettagliato dei dati")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Dati")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
+// MARK: - Custom Date Range View
 
 struct CustomDateRangeView: View {
     @Binding var startDate: Date
