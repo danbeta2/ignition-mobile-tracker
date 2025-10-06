@@ -12,14 +12,12 @@ import UserNotifications
 struct Ignition_Mobile_TrackerApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject private var notificationManager = IgnitionNotificationManager.shared
-    @StateObject private var pushNotificationService = PushNotificationService.shared
 
     var body: some Scene {
         WindowGroup {
             MainTabView()
                 .environment(\.managedObjectContext, persistenceController.context)
                 .environmentObject(notificationManager)
-                .environmentObject(pushNotificationService)
                 .onAppear {
                     setupNotifications()
                     initializeCardCollection()
@@ -29,16 +27,12 @@ struct Ignition_Mobile_TrackerApp: App {
     
     private func setupNotifications() {
         Task {
-            // Request notification permissions
+            // Request notification permissions for local notifications only
             await notificationManager.requestAuthorization()
             
-            // Register for push notifications
-            await pushNotificationService.registerForPushNotifications()
-            
-            // Schedule initial notifications
+            // Schedule local notifications
             let userProfile = persistenceController.getOrCreateUserProfile()
             await notificationManager.scheduleSmartReminders(based: userProfile)
-            await pushNotificationService.scheduleIntelligentNotifications(for: userProfile)
         }
     }
     
@@ -51,32 +45,14 @@ struct Ignition_Mobile_TrackerApp: App {
     }
 }
 
-// MARK: - App Delegate for Push Notifications
+// MARK: - App Delegate for Local Notifications
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
-        // Configure notification categories
+        // Configure notification categories for local notifications
         configureNotificationCategories()
         
         return true
-    }
-    
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        Task { @MainActor in
-            PushNotificationService.shared.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-        }
-    }
-    
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Task { @MainActor in
-            PushNotificationService.shared.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-        }
-    }
-    
-    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
-        Task { @MainActor in
-            PushNotificationService.shared.application(application, didReceiveRemoteNotification: userInfo)
-        }
     }
     
     private func configureNotificationCategories() {

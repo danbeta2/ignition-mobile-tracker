@@ -10,7 +10,6 @@ import UserNotifications
 
 struct NotificationSettingsView: View {
     @StateObject private var notificationManager = IgnitionNotificationManager.shared
-    @StateObject private var pushNotificationService = PushNotificationService.shared
     @StateObject private var themeManager = ThemeManager.shared
     
     @State private var dailyReminderEnabled = true
@@ -18,9 +17,6 @@ struct NotificationSettingsView: View {
     @State private var streakRemindersEnabled = true
     @State private var missionDeadlinesEnabled = true
     @State private var weeklyReportsEnabled = true
-    @State private var achievementNotificationsEnabled = true
-    @State private var sparkSuggestionsEnabled = false
-    @State private var pushNotificationsEnabled = false
     
     @State private var showingPermissionAlert = false
     
@@ -109,45 +105,6 @@ struct NotificationSettingsView: View {
                         .font(IgnitionFonts.caption2)
                 }
                 
-                // MARK: - Push Notifications
-                Section {
-                    VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
-                        Toggle("Push Notifications", isOn: $pushNotificationsEnabled)
-                            .font(IgnitionFonts.body)
-                        
-                        if pushNotificationsEnabled {
-                            HStack {
-                                Image(systemName: pushNotificationService.isRegisteredForRemoteNotifications ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                    .foregroundColor(pushNotificationService.isRegisteredForRemoteNotifications ? .green : .red)
-                                
-                                Text(pushNotificationService.isRegisteredForRemoteNotifications ? "Registrato" : "Non Registrato")
-                                    .font(IgnitionFonts.caption2)
-                                    .foregroundColor(IgnitionColors.secondaryText)
-                                
-                                Spacer()
-                            }
-                            .padding(.leading, IgnitionSpacing.md)
-                        }
-                    }
-                    .onChange(of: pushNotificationsEnabled) { _, enabled in
-                        updatePushNotifications(enabled: enabled)
-                    }
-                    
-                    Toggle("Achievement Unlocked", isOn: $achievementNotificationsEnabled)
-                        .font(IgnitionFonts.body)
-                        .disabled(!pushNotificationsEnabled)
-                    
-                    Toggle("Spark Suggestions", isOn: $sparkSuggestionsEnabled)
-                        .font(IgnitionFonts.body)
-                        .disabled(!pushNotificationsEnabled)
-                    
-                } header: {
-                    Text("Push Notifications")
-                } footer: {
-                    Text("Push notifications require an internet connection and are sent from the server.")
-                        .font(IgnitionFonts.caption2)
-                }
-                
                 // MARK: - Advanced Settings
                 Section {
                     Button(action: {
@@ -221,9 +178,6 @@ struct NotificationSettingsView: View {
         streakRemindersEnabled = UserDefaults.standard.bool(forKey: "streakRemindersEnabled")
         missionDeadlinesEnabled = UserDefaults.standard.bool(forKey: "missionDeadlinesEnabled")
         weeklyReportsEnabled = UserDefaults.standard.bool(forKey: "weeklyReportsEnabled")
-        achievementNotificationsEnabled = UserDefaults.standard.bool(forKey: "achievementNotificationsEnabled")
-        sparkSuggestionsEnabled = UserDefaults.standard.bool(forKey: "sparkSuggestionsEnabled")
-        pushNotificationsEnabled = UserDefaults.standard.bool(forKey: "pushNotificationsEnabled")
         
         if let timeData = UserDefaults.standard.data(forKey: "dailyReminderTime"),
            let time = try? JSONDecoder().decode(Date.self, from: timeData) {
@@ -236,9 +190,6 @@ struct NotificationSettingsView: View {
         UserDefaults.standard.set(streakRemindersEnabled, forKey: "streakRemindersEnabled")
         UserDefaults.standard.set(missionDeadlinesEnabled, forKey: "missionDeadlinesEnabled")
         UserDefaults.standard.set(weeklyReportsEnabled, forKey: "weeklyReportsEnabled")
-        UserDefaults.standard.set(achievementNotificationsEnabled, forKey: "achievementNotificationsEnabled")
-        UserDefaults.standard.set(sparkSuggestionsEnabled, forKey: "sparkSuggestionsEnabled")
-        UserDefaults.standard.set(pushNotificationsEnabled, forKey: "pushNotificationsEnabled")
         
         if let timeData = try? JSONEncoder().encode(dailyReminderTime) {
             UserDefaults.standard.set(timeData, forKey: "dailyReminderTime")
@@ -291,20 +242,10 @@ struct NotificationSettingsView: View {
         }
         saveSettings()
     }
-    
-    private func updatePushNotifications(enabled: Bool) {
-        Task {
-            if enabled {
-                await pushNotificationService.registerForPushNotifications()
-            }
-        }
-        saveSettings()
-    }
 }
 
 #Preview {
     NotificationSettingsView()
         .environmentObject(IgnitionNotificationManager.shared)
-        .environmentObject(PushNotificationService.shared)
         .environmentObject(ThemeManager.shared)
 }
