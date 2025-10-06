@@ -25,33 +25,6 @@ struct SettingsView: View {
                         themeManager.updateDarkMode(newValue)
                         audioHapticsManager.uiTapped()
                     }
-                    
-                    // Color Blind Friendly
-                    Toggle(isOn: $themeManager.isColorBlindFriendly) {
-                        Label("Color Blind Mode", systemImage: "eye.fill")
-                    }
-                    .onChange(of: themeManager.isColorBlindFriendly) { _, newValue in
-                        themeManager.updateColorBlindFriendly(newValue)
-                        audioHapticsManager.uiTapped()
-                    }
-                    
-                    // Font Scale
-                    VStack(alignment: .leading, spacing: IgnitionSpacing.sm) {
-                        Label("Text Size", systemImage: "textformat.size")
-                        
-                        HStack {
-                            Text("A")
-                                .font(.caption)
-                            
-                            Slider(value: $themeManager.fontScale, in: 0.8...1.5, step: 0.1)
-                                .onChange(of: themeManager.fontScale) { _, newValue in
-                                    themeManager.updateFontScale(newValue)
-                                }
-                            
-                            Text("A")
-                                .font(.title2)
-                        }
-                    }
                 }
                 
                 // MARK: - Audio & Haptics Section
