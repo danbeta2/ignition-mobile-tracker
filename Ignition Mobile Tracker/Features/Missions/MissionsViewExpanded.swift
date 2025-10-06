@@ -24,17 +24,9 @@ struct MissionsViewExpanded: View {
     @State private var selectedDifficulty: MissionDifficultyFilter = .all
     @State private var selectedTimeframe: MissionTimeframe = .all
     @State private var showingError = false
-    @State private var showingMissionCreator = false
     @State private var showingMissionDetails = false
-    @State private var showingLeaderboard = false
-    @State private var showingAchievements = false
-    @State private var showingMissionHistory = false
-    @State private var showingCustomMissions = false
-    @State private var showingMissionTemplates = false
-    @State private var showingProgressAnalytics = false
     
     // Mission Management
-    @State private var selectedMissionForDetails: IgnitionMissionModel?
     @State private var missionToComplete: IgnitionMissionModel?
     @State private var showingCompletionAnimation = false
     @State private var completedMissionReward = 0
@@ -191,15 +183,6 @@ struct MissionsViewExpanded: View {
             .background(themeManager.backgroundColor)
             .navigationTitle(navigationTitle)
             .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItemGroup(placement: .navigationBarLeading) {
-                    leadingToolbarItems
-                }
-                
-                ToolbarItemGroup(placement: .navigationBarTrailing) {
-                    trailingToolbarItems
-                }
-            }
             .onAppear {
                 setupView()
             }
@@ -207,15 +190,6 @@ struct MissionsViewExpanded: View {
                 await refreshData()
             }
             .searchable(text: $searchText, prompt: "Search missions...")
-            .sheet(isPresented: $showingMissionCreator) {
-                MissionCreatorView()
-            }
-            .sheet(isPresented: $showingLeaderboard) {
-                MissionLeaderboardView()
-            }
-            .sheet(isPresented: $showingAchievements) {
-                MissionAchievementsView()
-            }
             .overlay {
                 if showingCompletionAnimation {
                     missionCompletionOverlay
@@ -234,21 +208,6 @@ struct MissionsViewExpanded: View {
                     }
                 }
             )
-            .sheet(isPresented: $showingMissionHistory) {
-                MissionHistoryView()
-            }
-            .sheet(isPresented: $showingCustomMissions) {
-                CustomMissionsView()
-            }
-            .sheet(isPresented: $showingMissionTemplates) {
-                MissionTemplatesView()
-            }
-            .sheet(isPresented: $showingProgressAnalytics) {
-                MissionProgressAnalyticsView()
-            }
-            .sheet(item: $selectedMissionForDetails) { mission in
-                MissionDetailView(mission: mission)
-            }
             .alert("Error", isPresented: $showingError) {
                 Button("OK") { }
             } message: {
@@ -619,7 +578,6 @@ struct MissionsViewExpanded: View {
                     MissionCardView(
                         mission: mission,
                         onTap: {
-                            selectedMissionForDetails = mission
                             audioHapticsManager.uiTapped()
                         },
                         onComplete: {
@@ -647,7 +605,6 @@ struct MissionsViewExpanded: View {
                     MissionRowView(
                         mission: mission,
                         onTap: {
-                            selectedMissionForDetails = mission
                             audioHapticsManager.uiTapped()
                         },
                         onComplete: {
@@ -692,7 +649,6 @@ struct MissionsViewExpanded: View {
                             MissionTimelineItemView(
                                 mission: mission,
                                 onTap: {
-                                    selectedMissionForDetails = mission
                                     audioHapticsManager.uiTapped()
                                 },
                                 onComplete: {
@@ -716,7 +672,6 @@ struct MissionsViewExpanded: View {
                         status: status,
                         missions: filteredMissions.filter { $0.status == status },
                         onMissionTap: { mission in
-                            selectedMissionForDetails = mission
                             audioHapticsManager.uiTapped()
                         },
                         onMissionComplete: { mission in
@@ -821,72 +776,10 @@ struct MissionsViewExpanded: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(themeManager.primaryColor)
-            } else {
-                Button("Create Custom Mission") {
-                    showingMissionCreator = true
-                    audioHapticsManager.uiTapped()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(themeManager.primaryColor)
             }
         }
         .padding(IgnitionSpacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    // MARK: - Toolbar Items
-    private var leadingToolbarItems: some View {
-        HStack {
-            Button(action: {
-                showingProgressAnalytics = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: AssetNames.ChartIcons.analytics.systemName)
-                    .foregroundColor(themeManager.primaryColor)
-            }
-            
-            Button(action: {
-                showingLeaderboard = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: "trophy")
-                    .foregroundColor(themeManager.primaryColor)
-            }
-        }
-    }
-    
-    private var trailingToolbarItems: some View {
-        HStack {
-            Menu {
-                Button("History", systemImage: "clock.arrow.circlepath") {
-                    showingMissionHistory = true
-                }
-                
-                Button("Achievements", systemImage: "rosette") {
-                    showingAchievements = true
-                }
-                
-                Button("Custom Missions", systemImage: "person.crop.circle.badge.plus") {
-                    showingCustomMissions = true
-                }
-                
-                Button("Templates", systemImage: "doc.on.doc") {
-                    showingMissionTemplates = true
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .foregroundColor(themeManager.primaryColor)
-            }
-            
-            Button(action: {
-                showingMissionCreator = true
-                audioHapticsManager.uiTapped()
-            }) {
-                Image(systemName: AssetNames.SystemIcons.addButton.systemName)
-                    .foregroundColor(themeManager.primaryColor)
-                    .font(.title3)
-            }
-        }
     }
     
     // MARK: - Mission Completion Overlay
@@ -1679,162 +1572,6 @@ extension IgnitionMissionModel {
     mutating func toggleFavorite() {
         isFavorite.toggle()
         // Save to persistence if needed
-    }
-}
-
-// MARK: - Placeholder Views for Sheets
-
-struct MissionCreatorView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Creatore Missioni")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verrà implementato il creatore di missioni personalizzate")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Nuova Missione")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionLeaderboardView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Classifica Missioni")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verrà mostrata la classifica globale")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Classifica")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionAchievementsView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Obiettivi Missioni")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrati tutti gli obiettivi")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Obiettivi")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionHistoryView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Cronologia Missioni")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verrà mostrata la cronologia completa")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Cronologia")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct CustomMissionsView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Missioni Personalizzate")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno gestite le missioni create dall'utente")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Personalizzate")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionTemplatesView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Template Missioni")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrati i template disponibili")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Template")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionProgressAnalyticsView: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Analisi Progressi")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrate le analisi dettagliate dei progressi")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle("Analisi")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-struct MissionDetailView: View {
-    let mission: IgnitionMissionModel
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Dettagli Missione")
-                    .font(.largeTitle)
-                    .padding()
-                
-                Text("Qui verranno mostrati i dettagli della missione")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-            }
-            .navigationTitle(mission.title)
-            .navigationBarTitleDisplayMode(.inline)
-        }
     }
 }
 
