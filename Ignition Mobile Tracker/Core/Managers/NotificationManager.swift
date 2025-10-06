@@ -2,7 +2,7 @@
 //  NotificationManager.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 01/10/25.
+//  Created by SASU TALHA Dev Team on 01/10/25.
 //
 
 import Foundation
@@ -242,7 +242,7 @@ class IgnitionNotificationManager: ObservableObject {
         
         await scheduleNotification(
             type: .weeklyReport,
-            body: "Il tuo report settimanale è pronto! Scopri i tuoi progressi.",
+            body: "Your weekly report is ready! Discover your progress.",
             date: Calendar.current.nextDate(after: Date(), matching: components, matchingPolicy: .nextTime),
             repeats: true
         )

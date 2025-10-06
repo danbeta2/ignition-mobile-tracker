@@ -2,7 +2,7 @@
 //  AssetNames.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 01/10/25.
+//  Created by SASU TALHA Dev Team on 01/10/25.
 //
 
 import Foundation
@@ -190,9 +190,9 @@ enum AssetNames {
         
         var displayName: String {
             switch self {
-            case .daily: return "Giornaliera"
-            case .weekly: return "Settimanale"
-            case .achievement: return "Obiettivo"
+            case .daily: return "Daily"
+            case .weekly: return "Weekly"
+            case .achievement: return "Achievement"
             }
         }
     }

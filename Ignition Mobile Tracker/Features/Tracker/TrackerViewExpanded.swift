@@ -2,7 +2,7 @@
 //  TrackerViewExpanded.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 01/10/25.
+//  Created by SASU TALHA Dev Team on 01/10/25.
 //
 
 import SwiftUI
@@ -56,12 +56,12 @@ struct TrackerViewExpanded: View {
     
     // MARK: - Enums
     enum SortOption: String, CaseIterable {
-        case newest = "Più Recenti"
-        case oldest = "Più Vecchi"
-        case points = "Punti"
-        case category = "Categoria"
-        case intensity = "Intensità"
-        case alphabetical = "Alfabetico"
+        case newest = "Newest"
+        case oldest = "Oldest"
+        case points = "Points"
+        case category = "Category"
+        case intensity = "Intensity"
+        case alphabetical = "Alphabetical"
         
         var icon: String {
             switch self {
@@ -92,14 +92,14 @@ struct TrackerViewExpanded: View {
     }
     
     enum DateRange: String, CaseIterable {
-        case all = "Tutti"
-        case today = "Oggi"
-        case yesterday = "Ieri"
-        case thisWeek = "Questa Settimana"
-        case lastWeek = "Settimana Scorsa"
-        case thisMonth = "Questo Mese"
-        case lastMonth = "Mese Scorso"
-        case custom = "Personalizzato"
+        case all = "All"
+        case today = "Today"
+        case yesterday = "Yesterday"
+        case thisWeek = "This Week"
+        case lastWeek = "Last Week"
+        case thisMonth = "This Month"
+        case lastMonth = "Last Month"
+        case custom = "Custom"
         
         var dateInterval: DateInterval? {
             let calendar = Calendar.current
@@ -128,10 +128,10 @@ struct TrackerViewExpanded: View {
     }
     
     enum AnalyticsPeriod: String, CaseIterable {
-        case day = "Giorno"
-        case week = "Settimana"
-        case month = "Mese"
-        case year = "Anno"
+        case day = "Day"
+        case week = "Week"
+        case month = "Month"
+        case year = "Year"
     }
     
     // MARK: - Computed Properties
@@ -362,21 +362,21 @@ struct TrackerViewExpanded: View {
                 )
                 
                 quickStatCard(
-                    title: "Oggi",
+                    title: "Today",
                     value: "\(quickStats.todayCount)",
                     icon: "calendar",
                     color: .green
                 )
                 
                 quickStatCard(
-                    title: "Settimana",
+                    title: "Week",
                     value: "\(quickStats.weekCount)",
                     icon: "calendar.badge.clock",
                     color: .orange
                 )
                 
                 quickStatCard(
-                    title: "Intensità",
+                    title: "Intensity",
                     value: String(format: "%.1f", quickStats.avgIntensity),
                     icon: "flame.fill",
                     color: .red
@@ -730,7 +730,7 @@ struct TrackerViewExpanded: View {
                 }
                 
                 if let intensity = selectedIntensity {
-                    activeFilterChip(title: "Intensità \(intensity.rawValue)") {
+                    activeFilterChip(title: "Intensity \(intensity.rawValue)") {
                         selectedIntensity = nil
                     }
                 }

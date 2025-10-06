@@ -2,7 +2,7 @@
 //  StatsViewExpanded.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 01/10/25.
+//  Created by SASU TALHA Dev Team on 01/10/25.
 //
 
 import SwiftUI
@@ -160,10 +160,10 @@ struct StatsViewExpanded: View {
                     endDate: $customEndDate
                 )
             }
-            .alert("Errore", isPresented: $showingError) {
+            .alert("Error", isPresented: $showingError) {
                 Button("OK") { }
             } message: {
-                Text("Si è verificato un errore durante il caricamento dei dati")
+                Text("An error occurred while loading data")
             }
         }
     }
@@ -297,7 +297,7 @@ struct StatsViewExpanded: View {
                         .frame(height: 20)
                     
                     // Intensity Filters
-                    Text("Intensità:")
+                    Text("Intensity:")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                     
@@ -379,18 +379,18 @@ struct StatsViewExpanded: View {
             )
             
             metricCard(
-                title: "Punti Guadagnati",
+                title: "Points Earned",
                 value: formatNumber(overviewStats.totalPoints),
-                subtitle: "punti totali",
+                subtitle: "total points",
                 icon: "star.fill",
                 color: .yellow,
                 trend: calculateTrendForMetric(.points)
             )
             
             metricCard(
-                title: "Intensità Media",
+                title: "Average Intensity",
                 value: String(format: "%.1f", overviewStats.averageIntensity),
-                subtitle: "su 4.0",
+                subtitle: "out of 4.0",
                 icon: "flame.fill",
                 color: .red,
                 trend: calculateTrendForMetric(.intensity)
@@ -415,9 +415,9 @@ struct StatsViewExpanded: View {
             )
             
             metricCard(
-                title: "Produttività",
+                title: "Productivity",
                 value: "\(Int(overviewStats.productivityScore * 100))%",
-                subtitle: "score generale",
+                subtitle: "overall score",
                 icon: "chart.line.uptrend.xyaxis",
                 color: .purple,
                 trend: calculateTrendForMetric(.productivity)
@@ -602,7 +602,7 @@ struct StatsViewExpanded: View {
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("Disponibile in una futura versione")
+            Text("Available in a future version")
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -636,7 +636,7 @@ struct StatsViewExpanded: View {
     // MARK: - Category Breakdown View
     private var categoryBreakdownView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Breakdown per Categoria")
+            Text("Breakdown by Category")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -674,7 +674,7 @@ struct StatsViewExpanded: View {
     // MARK: - Trends Section
     private var trendsSection: some View {
         VStack(spacing: IgnitionSpacing.lg) {
-            Text("Analisi delle Tendenze")
+            Text("Trend Analysis")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -707,7 +707,7 @@ struct StatsViewExpanded: View {
     // MARK: - Correlations Section
     private var correlationsSection: some View {
         VStack(spacing: IgnitionSpacing.lg) {
-            Text("Analisi delle Correlazioni")
+            Text("Correlation Analysis")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -998,11 +998,11 @@ struct StatsViewExpanded: View {
     // MARK: - Placeholder Views for Complex Sections
     private var weeklyHeatmapView: some View {
         VStack {
-            Text("Mappa di Calore Settimanale")
+            Text("Weekly Heat Map")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("Visualizzazione dell'attività per ora e giorno")
+            Text("Activity visualization by hour and day")
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
             
@@ -1023,11 +1023,11 @@ struct StatsViewExpanded: View {
     
     private var productiveTimesView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Orari più Produttivi")
+            Text("Most Productive Hours")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("Basato sui tuoi pattern di attività")
+            Text("Based on your activity patterns")
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -1038,11 +1038,11 @@ struct StatsViewExpanded: View {
     
     private var behavioralPatternsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Pattern Comportamentali")
+            Text("Behavioral Patterns")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("Analisi dei tuoi comportamenti ricorrenti")
+            Text("Analysis of your recurring behaviors")
                 .font(.caption)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -1088,7 +1088,7 @@ struct StatsViewExpanded: View {
                 .foregroundColor(themeManager.secondaryTextColor)
             
             HStack {
-                Text("Correlazione:")
+                Text("Correlation:")
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
                 
@@ -1122,7 +1122,7 @@ struct StatsViewExpanded: View {
                 .font(.body)
                 .foregroundColor(themeManager.secondaryTextColor)
             
-            Text("Valore previsto: \(prediction.predictedValue)")
+            Text("Predicted value: \(prediction.predictedValue)")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.primaryColor)
@@ -1134,7 +1134,7 @@ struct StatsViewExpanded: View {
     
     private var comparisonControlsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Confronta con:")
+            Text("Compare with:")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
@@ -1167,11 +1167,11 @@ struct StatsViewExpanded: View {
     
     private var comparisonChartsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Grafici di Confronto")
+            Text("Comparison Charts")
                 .font(.headline)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("I grafici di confronto saranno implementati qui")
+            Text("Comparison charts will be implemented here")
                 .font(.body)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -1410,32 +1410,32 @@ struct StatsViewExpanded: View {
         return [
             TimePatternData(
                 id: UUID(),
-                title: "Orario di Picco",
-                description: "La tua ora più produttiva",
+                title: "Peak Time",
+                description: "Your most productive hour",
                 value: "14:00-15:00",
                 icon: "clock.fill",
                 color: .blue
             ),
             TimePatternData(
                 id: UUID(),
-                title: "Giorno Migliore",
-                description: "Il giorno della settimana più attivo",
-                value: "Martedì",
+                title: "Best Day",
+                description: "Most active day of the week",
+                value: "Tuesday",
                 icon: "calendar.circle.fill",
                 color: .green
             ),
             TimePatternData(
                 id: UUID(),
-                title: "Durata Media",
-                description: "Tempo medio tra i Spark",
+                title: "Average Duration",
+                description: "Average time between Sparks",
                 value: "2.5h",
                 icon: "timer",
                 color: .orange
             ),
             TimePatternData(
                 id: UUID(),
-                title: "Frequenza",
-                description: "Spark per giorno in media",
+                title: "Frequency",
+                description: "Average Sparks per day",
                 value: "3.2",
                 icon: "repeat",
                 color: .purple
@@ -1447,8 +1447,8 @@ struct StatsViewExpanded: View {
         return [
             InsightData(
                 id: UUID(),
-                title: "Trend Positivo",
-                description: "La tua produttività è aumentata del 15% questa settimana rispetto alla precedente.",
+                title: "Positive Trend",
+                description: "Your productivity has increased by 15% this week compared to last week.",
                 type: .trend,
                 icon: "chart.line.uptrend.xyaxis",
                 color: .green,
@@ -1456,8 +1456,8 @@ struct StatsViewExpanded: View {
             ),
             InsightData(
                 id: UUID(),
-                title: "Pattern Identificato",
-                description: "Tendi a essere più creativo nelle ore pomeridiane, specialmente tra le 14:00 e le 16:00.",
+                title: "Pattern Identified",
+                description: "You tend to be more creative in the afternoon, especially between 2:00 PM and 4:00 PM.",
                 type: .pattern,
                 icon: "clock.fill",
                 color: .blue,
@@ -1465,8 +1465,8 @@ struct StatsViewExpanded: View {
             ),
             InsightData(
                 id: UUID(),
-                title: "Correlazione Scoperta",
-                description: "C'è una forte correlazione tra l'intensità dei tuoi Spark e il completamento delle missioni.",
+                title: "Correlation Discovered",
+                description: "There is a strong correlation between your Spark intensity and mission completion.",
                 type: .correlation,
                 icon: "link",
                 color: .purple,
@@ -1474,8 +1474,8 @@ struct StatsViewExpanded: View {
             ),
             InsightData(
                 id: UUID(),
-                title: "Raccomandazione",
-                description: "Basandoci sui tuoi pattern, dovresti provare a creare più Spark nella categoria 'Esperimento'.",
+                title: "Recommendation",
+                description: "Based on your patterns, you should try creating more Sparks in the 'Experiment' category.",
                 type: .recommendation,
                 icon: "lightbulb.fill",
                 color: .yellow,
@@ -1488,19 +1488,19 @@ struct StatsViewExpanded: View {
         return [
             TrendData(
                 id: UUID(),
-                title: "Crescita Spark Settimanali",
-                description: "Il numero di Spark creati ogni settimana sta aumentando costantemente.",
+                title: "Weekly Spark Growth",
+                description: "The number of Sparks created each week is steadily increasing.",
                 direction: .up,
                 changePercentage: 12.5,
-                period: "Ultime 4 settimane"
+                period: "Last 4 weeks"
             ),
             TrendData(
                 id: UUID(),
-                title: "Intensità Media",
-                description: "L'intensità media dei tuoi Spark è rimasta stabile nell'ultimo mese.",
+                title: "Average Intensity",
+                description: "Your average Spark intensity has remained stable over the past month.",
                 direction: .stable,
                 changePercentage: 2.1,
-                period: "Ultimo mese"
+                period: "Last month"
             )
         ]
     }
@@ -1509,15 +1509,15 @@ struct StatsViewExpanded: View {
         return [
             CorrelationData(
                 id: UUID(),
-                title: "Intensità vs Punti",
-                description: "Esiste una forte correlazione positiva tra l'intensità dei Spark e i punti guadagnati.",
+                title: "Intensity vs Points",
+                description: "There is a strong positive correlation between Spark intensity and points earned.",
                 strength: 0.85,
                 significance: 0.001
             ),
             CorrelationData(
                 id: UUID(),
-                title: "Orario vs Produttività",
-                description: "La produttività mostra una correlazione moderata con l'orario di creazione dei Spark.",
+                title: "Time vs Productivity",
+                description: "Productivity shows a moderate correlation with Spark creation time.",
                 strength: 0.62,
                 significance: 0.05
             )
@@ -1528,19 +1528,19 @@ struct StatsViewExpanded: View {
         return [
             PredictionData(
                 id: UUID(),
-                title: "Spark del Prossimo Mese",
-                description: "Basandoci sui tuoi pattern attuali, prevediamo che creerai circa 85 Spark il prossimo mese.",
+                title: "Next Month Sparks",
+                description: "Based on your current patterns, we predict you'll create about 85 Sparks next month.",
                 predictedValue: "85 Spark",
                 confidence: 0.78,
-                timeframe: "Prossimo mese"
+                timeframe: "Next month"
             ),
             PredictionData(
                 id: UUID(),
-                title: "Raggiungimento Obiettivo",
-                description: "Hai il 92% di probabilità di raggiungere il tuo obiettivo di streak di 30 giorni.",
-                predictedValue: "30 giorni",
+                title: "Goal Achievement",
+                description: "You have a 92% probability of reaching your 30-day streak goal.",
+                predictedValue: "30 days",
                 confidence: 0.92,
-                timeframe: "Prossime 3 settimane"
+                timeframe: "Next 3 weeks"
             )
         ]
     }
@@ -1701,11 +1701,11 @@ struct CustomDateRangeView: View {
                 .buttonStyle(.borderedProminent)
             }
             .padding(IgnitionSpacing.md)
-            .navigationTitle("Periodo Personalizzato")
+            .navigationTitle("Custom Period")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Chiudi") {
+                    Button("Close") {
                         dismiss()
                     }
                 }

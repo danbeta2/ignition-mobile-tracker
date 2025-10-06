@@ -2,7 +2,7 @@
 //  SparkModels.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 01/10/25.
+//  Created by SASU TALHA Dev Team on 01/10/25.
 //
 
 import Foundation
@@ -242,11 +242,11 @@ enum AchievementType: String, CaseIterable, Codable {
     
     var displayName: String {
         switch self {
-        case .sparkCount: return "Contatore Spark"
-        case .categoryMaster: return "Maestro Categoria"
-        case .streak: return "Serie"
-        case .points: return "Punti"
-        case .special: return "Speciale"
+        case .sparkCount: return "Spark Counter"
+        case .categoryMaster: return "Category Master"
+        case .streak: return "Streak"
+        case .points: return "Points"
+        case .special: return "Special"
         }
     }
 }

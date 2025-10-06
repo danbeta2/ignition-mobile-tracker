@@ -2,7 +2,7 @@
 //  OnboardingView.swift
 //  Ignition Mobile Tracker
 //
-//  Created by Giulio Posa on 04/10/25.
+//  Created by SASU TALHA Dev Team on 04/10/25.
 //
 
 import SwiftUI
