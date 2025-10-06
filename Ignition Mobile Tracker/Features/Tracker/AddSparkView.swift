@@ -230,7 +230,7 @@ struct AddSparkView: View {
             
             // Tag Input
             HStack {
-                TextField("Aggiungi tag...", text: $newTag)
+                TextField("Add tag...", text: $newTag)
                     .font(IgnitionFonts.body)
                     .foregroundColor(themeManager.textColor)
                     .focused($tagFocused)
@@ -238,7 +238,7 @@ struct AddSparkView: View {
                         addTag()
                     }
                 
-                Button("Aggiungi") {
+                Button("Add") {
                     addTag()
                 }
                 .font(IgnitionFonts.callout)

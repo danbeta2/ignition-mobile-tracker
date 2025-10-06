@@ -30,9 +30,9 @@ struct NotificationSettingsView: View {
                             .foregroundColor(notificationManager.isAuthorized ? .green : .red)
                         
                         VStack(alignment: .leading) {
-                            Text("Stato Notifiche")
+                            Text("Notification Status")
                                 .font(IgnitionFonts.body)
-                            Text(notificationManager.isAuthorized ? "Autorizzate" : "Non Autorizzate")
+                            Text(notificationManager.isAuthorized ? "Authorized" : "Not Authorized")
                                 .font(IgnitionFonts.caption2)
                                 .foregroundColor(IgnitionColors.secondaryText)
                         }
@@ -40,14 +40,14 @@ struct NotificationSettingsView: View {
                         Spacer()
                         
                         if !notificationManager.isAuthorized {
-                            Button("Abilita") {
+                            Button("Enable") {
                                 requestPermissions()
                             }
                             .buttonStyle(.borderedProminent)
                         }
                     }
                 } header: {
-                    Text("Permessi")
+                    Text("Permissions")
                 }
                 
                 // MARK: - Local Notifications
@@ -99,9 +99,9 @@ struct NotificationSettingsView: View {
                         }
                     
                 } header: {
-                    Text("Notifiche Locali")
+                    Text("Local Notifications")
                 } footer: {
-                    Text("Le notifiche locali vengono create direttamente sul tuo dispositivo.")
+                    Text("Local notifications are created directly on your device.")
                         .font(IgnitionFonts.caption2)
                 }
                 
@@ -114,7 +114,7 @@ struct NotificationSettingsView: View {
                     }) {
                         HStack {
                             Image(systemName: "list.bullet")
-                            Text("Vedi Notifiche Programmate")
+                            Text("View Scheduled Notifications")
                             Spacer()
                             Text("\(notificationManager.pendingNotifications.count)")
                                 .foregroundColor(IgnitionColors.secondaryText)
@@ -130,24 +130,24 @@ struct NotificationSettingsView: View {
                         HStack {
                             Image(systemName: "trash")
                                 .foregroundColor(.red)
-                            Text("Cancella Tutte le Notifiche")
+                            Text("Clear All Notifications")
                                 .foregroundColor(.red)
                         }
                     }
                     
                 } header: {
-                    Text("Gestione Avanzata")
+                    Text("Advanced Management")
                 }
             }
-            .navigationTitle("Notifiche")
+            .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.large)
-            .alert("Permessi Richiesti", isPresented: $showingPermissionAlert) {
-                Button("Impostazioni") {
+            .alert("Permissions Required", isPresented: $showingPermissionAlert) {
+                Button("Settings") {
                     openAppSettings()
                 }
-                Button("Annulla", role: .cancel) { }
+                Button("Cancel", role: .cancel) { }
             } message: {
-                Text("Per ricevere notifiche, abilita i permessi nelle Impostazioni dell'app.")
+                Text("To receive notifications, enable permissions in the app Settings.")
             }
         }
         .onAppear {
