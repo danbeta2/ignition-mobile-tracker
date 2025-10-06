@@ -90,6 +90,14 @@ struct SettingsView: View {
                     }
                 }
                 
+                // MARK: - Legal Section
+                Section("Legal") {
+                    NavigationLink(destination: PrivacyPolicyView()) {
+                        Label("Privacy Policy", systemImage: "hand.raised.fill")
+                            .foregroundColor(themeManager.primaryTextColor)
+                    }
+                }
+                
                 // MARK: - About Section
                 Section("About") {
                     HStack {
@@ -103,6 +111,13 @@ struct SettingsView: View {
                         Text("Build")
                         Spacer()
                         Text("1")
+                            .foregroundColor(themeManager.secondaryTextColor)
+                    }
+                    
+                    HStack {
+                        Text("Developer")
+                        Spacer()
+                        Text("SASU TALHA")
                             .foregroundColor(themeManager.secondaryTextColor)
                     }
                 }
