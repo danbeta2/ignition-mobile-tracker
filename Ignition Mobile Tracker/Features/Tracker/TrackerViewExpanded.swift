@@ -79,14 +79,14 @@ struct TrackerViewExpanded: View {
         case list = "Lista"
         case grid = "Griglia"
         case timeline = "Timeline"
-        case map = "Mappa"
+        // case map = "Mappa" // Removed - not implemented
         
         var icon: String {
             switch self {
             case .list: return "list.bullet"
             case .grid: return "square.grid.2x2"
             case .timeline: return "timeline.selection"
-            case .map: return "map"
+            // case .map: return "map" // Removed - not implemented
             }
         }
     }
@@ -546,8 +546,8 @@ struct TrackerViewExpanded: View {
                 sparkGridView
             case .timeline:
                 sparkTimelineView
-            case .map:
-                sparkMapView
+            // case .map: // Removed - not implemented
+            //     sparkMapView
             }
         }
     }
@@ -653,32 +653,7 @@ struct TrackerViewExpanded: View {
         }
     }
     
-    // MARK: - Map View (Placeholder)
-    private var sparkMapView: some View {
-        VStack(spacing: IgnitionSpacing.lg) {
-            Image(systemName: "map")
-                .font(.system(size: 60))
-                .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
-            
-            Text("Map View")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            Text("The map view will be available in a future version")
-                .font(.body)
-                .foregroundColor(themeManager.secondaryTextColor)
-                .multilineTextAlignment(.center)
-            
-            Button("Back to List") {
-                viewMode = .list
-                audioHapticsManager.uiTapped()
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(themeManager.primaryColor)
-        }
-        .padding(IgnitionSpacing.xl)
-    }
+    // Map View removed - not implemented for v1.0
     
     // MARK: - Helper Views
     private func quickStatCard(title: String, value: String, icon: String, color: Color) -> some View {

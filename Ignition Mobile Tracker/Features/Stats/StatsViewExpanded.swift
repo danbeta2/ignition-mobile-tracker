@@ -592,21 +592,8 @@ struct StatsViewExpanded: View {
     }
     
     private var heatmapChartView: some View {
-        // Placeholder for heatmap - would need custom implementation
-        VStack {
-            Image(systemName: "grid.circle.fill")
-                .font(.system(size: 60))
-                .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
-            
-            Text("Heatmap View")
-                .font(.headline)
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            Text("Available in a future version")
-                .font(.caption)
-                .foregroundColor(themeManager.secondaryTextColor)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // Heatmap view - not used in v1.0
+        EmptyView()
     }
     
     // MARK: - Quick Insights View
