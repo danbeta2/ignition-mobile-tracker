@@ -48,6 +48,18 @@ struct NotificationSettingsView: View {
                     }
                 } header: {
                     Text("Permissions")
+                } footer: {
+                    if !notificationManager.isAuthorized {
+                        Button(action: openAppSettings) {
+                            HStack {
+                                Image(systemName: "gear")
+                                Text("Open iOS Settings to Enable Notifications")
+                            }
+                            .font(.caption)
+                            .foregroundColor(themeManager.primaryColor)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
                 
                 // MARK: - Local Notifications
