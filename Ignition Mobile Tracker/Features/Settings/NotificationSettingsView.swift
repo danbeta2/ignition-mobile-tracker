@@ -104,40 +104,6 @@ struct NotificationSettingsView: View {
                     Text("Local notifications are created directly on your device.")
                         .font(IgnitionFonts.caption2)
                 }
-                
-                // MARK: - Advanced Settings
-                Section {
-                    Button(action: {
-                        Task {
-                            await notificationManager.getPendingNotifications()
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "list.bullet")
-                            Text("View Scheduled Notifications")
-                            Spacer()
-                            Text("\(notificationManager.pendingNotifications.count)")
-                                .foregroundColor(IgnitionColors.secondaryText)
-                        }
-                    }
-                    
-                    Button(action: {
-                        Task {
-                            await notificationManager.cancelAllNotifications()
-                            notificationManager.clearBadge()
-                        }
-                    }) {
-                        HStack {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
-                            Text("Clear All Notifications")
-                                .foregroundColor(.red)
-                        }
-                    }
-                    
-                } header: {
-                    Text("Advanced Management")
-                }
             }
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.large)

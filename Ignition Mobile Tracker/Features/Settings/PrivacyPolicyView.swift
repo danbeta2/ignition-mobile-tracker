@@ -262,4 +262,3 @@ struct SummaryPoint: View {
         PrivacyPolicyView()
     }
 }
-

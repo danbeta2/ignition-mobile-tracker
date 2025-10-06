@@ -65,17 +65,16 @@ class IgnitionNotificationManager: ObservableObject {
     
     func requestAuthorization() async -> Bool {
         do {
+            // Apple compliant: Only request standard notification permissions
             let granted = try await center.requestAuthorization(options: [
-                .alert, .badge, .sound, .provisional, .criticalAlert
+                .alert, .badge, .sound
             ])
             
             await MainActor.run {
                 self.isAuthorized = granted
             }
             
-            if granted {
-                await registerForRemoteNotifications()
-            }
+            // No remote notifications - app is fully offline
             
             return granted
         } catch {
@@ -94,11 +93,7 @@ class IgnitionNotificationManager: ObservableObject {
         }
     }
     
-    private func registerForRemoteNotifications() async {
-        await MainActor.run {
-            UIApplication.shared.registerForRemoteNotifications()
-        }
-    }
+    // Remote notifications removed - app is fully offline
     
     // MARK: - Notification Scheduling
     
