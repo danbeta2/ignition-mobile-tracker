@@ -84,17 +84,9 @@ struct SettingsView: View {
                 
                 // MARK: - Notifications Section
                 Section("Notifications") {
-                    Button(action: {
-                        // TODO: Navigate to NotificationSettingsView
-                    }) {
-                        HStack {
-                            Label("Notification Settings", systemImage: "bell.fill")
-                                .foregroundColor(themeManager.primaryTextColor)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(themeManager.secondaryTextColor)
-                                .font(.caption)
-                        }
+                    NavigationLink(destination: NotificationSettingsView()) {
+                        Label("Notification Settings", systemImage: "bell.fill")
+                            .foregroundColor(themeManager.primaryTextColor)
                     }
                 }
                 

@@ -28,7 +28,7 @@ struct Ignition_Mobile_TrackerApp: App {
     private func setupNotifications() {
         Task {
             // Request notification permissions for local notifications only
-            await notificationManager.requestAuthorization()
+            _ = await notificationManager.requestAuthorization()
             
             // Schedule local notifications
             let userProfile = persistenceController.getOrCreateUserProfile()
