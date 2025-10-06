@@ -175,7 +175,7 @@ struct StatsViewExpanded: View {
             HStack(spacing: IgnitionSpacing.md) {
                 // Time Range
                 VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                    Text("Periodo")
+                    Text("Period")
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(themeManager.secondaryTextColor)
@@ -215,7 +215,7 @@ struct StatsViewExpanded: View {
                 
                 // Metric Type
                 VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                    Text("Metrica")
+                    Text("Metric")
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(themeManager.secondaryTextColor)
@@ -274,7 +274,7 @@ struct StatsViewExpanded: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: IgnitionSpacing.sm) {
                     // Category Filters
-                    Text("Categorie:")
+                    Text("Categories:")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                     
@@ -370,9 +370,9 @@ struct StatsViewExpanded: View {
     private var keyMetricsGrid: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: IgnitionSpacing.md) {
             metricCard(
-                title: "Spark Totali",
+                title: "Total Sparks",
                 value: "\(overviewStats.totalSparks)",
-                subtitle: "in questo periodo",
+                subtitle: "in this period",
                 icon: "sparkles",
                 color: .blue,
                 trend: calculateTrendForMetric(.sparks)
@@ -397,18 +397,18 @@ struct StatsViewExpanded: View {
             )
             
             metricCard(
-                title: "Streak Attuale",
+                title: "Current Streak",
                 value: "\(overviewStats.currentStreak)",
-                subtitle: "giorni consecutivi",
+                subtitle: "consecutive days",
                 icon: "flame",
                 color: .orange,
                 trend: TrendDirection.stable
             )
             
             metricCard(
-                title: "Categorie Usate",
+                title: "Categories Used",
                 value: "\(overviewStats.uniqueCategories)",
-                subtitle: "su \(SparkCategory.allCases.count)",
+                subtitle: "out of \(SparkCategory.allCases.count)",
                 icon: "folder.fill",
                 color: .green,
                 trend: calculateTrendForMetric(.categories)
@@ -430,7 +430,7 @@ struct StatsViewExpanded: View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
             HStack {
                 VStack(alignment: .leading, spacing: IgnitionSpacing.xs) {
-                    Text("Andamento \(selectedMetric.rawValue)")
+                    Text("Trend \(selectedMetric.rawValue)")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(themeManager.primaryTextColor)
@@ -654,7 +654,7 @@ struct StatsViewExpanded: View {
     // MARK: - Time Patterns View
     private var timePatternsView: some View {
         VStack(alignment: .leading, spacing: IgnitionSpacing.md) {
-            Text("Pattern Temporali")
+            Text("Time Patterns")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.primaryTextColor)

@@ -335,7 +335,7 @@ struct TrackerViewExpanded: View {
     private var quickStatsHeader: some View {
         VStack(spacing: IgnitionSpacing.sm) {
             HStack {
-                Text("Panoramica")
+                Text("Overview")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(themeManager.primaryTextColor)
@@ -660,17 +660,17 @@ struct TrackerViewExpanded: View {
                 .font(.system(size: 60))
                 .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
             
-            Text("Vista Mappa")
+            Text("Map View")
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundColor(themeManager.primaryTextColor)
             
-            Text("La vista mappa sarà disponibile in una futura versione")
+            Text("The map view will be available in a future version")
                 .font(.body)
                 .foregroundColor(themeManager.secondaryTextColor)
                 .multilineTextAlignment(.center)
             
-            Button("Torna alla Lista") {
+            Button("Back to List") {
                 viewMode = .list
                 audioHapticsManager.uiTapped()
             }
@@ -795,7 +795,7 @@ struct TrackerViewExpanded: View {
                 .scaleEffect(1.5)
                 .tint(themeManager.primaryColor)
             
-            Text("Caricamento Spark...")
+            Text("Loading Sparks...")
                 .font(.headline)
                 .foregroundColor(themeManager.secondaryTextColor)
         }
@@ -819,7 +819,7 @@ struct TrackerViewExpanded: View {
                 .multilineTextAlignment(.center)
             
             if hasActiveFilters {
-                Button("Cancella Filtri") {
+                Button("Clear Filters") {
                     clearAllFilters()
                     audioHapticsManager.uiTapped()
                 }
