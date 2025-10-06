@@ -83,9 +83,6 @@ struct MainTabView: View {
                     }
                 }
             }
-            .navigationDestination(for: SecondaryRoute.self) { route in
-                destinationView(for: route)
-            }
             .alert(errorManager.currentError?.title ?? "Error", isPresented: $errorManager.showAlert) {
                 Button("OK") {
                     errorManager.currentError = nil
@@ -105,31 +102,6 @@ struct MainTabView: View {
                     }
                 }
             )
-        }
-    }
-    
-    // MARK: - Navigation Destinations
-    // Note: Stats and Settings are presented as sheets, not navigation destinations
-    @ViewBuilder
-    private func destinationView(for route: SecondaryRoute) -> some View {
-        switch route {
-        case .achievements:
-            AchievementsView()
-        case .collectibles:
-            Text("Collectibles View")
-                .navigationTitle("Collectibles")
-        case .sparkDetail:
-            Text("Spark Detail View")
-                .navigationTitle("Spark Detail")
-        case .missionDetail:
-            Text("Mission Detail View")
-                .navigationTitle("Mission Detail")
-        case .tableDetail:
-            Text("Table Detail View")
-                .navigationTitle("Table Detail")
-        case .entryDetail:
-            Text("Entry Detail View")
-                .navigationTitle("Entry Detail")
         }
     }
     
