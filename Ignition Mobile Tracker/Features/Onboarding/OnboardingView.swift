@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UserNotifications
 
 // MARK: - Onboarding Page Model
 struct OnboardingPage: Identifiable {
@@ -21,6 +22,7 @@ struct OnboardingView: View {
     @Binding var isPresented: Bool
     @StateObject private var audioHapticsManager = AudioHapticsManager.shared
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var notificationManager = IgnitionNotificationManager.shared
     
     @State private var currentPage = 0
     
@@ -140,6 +142,16 @@ struct OnboardingView: View {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         audioHapticsManager.uiTapped()
         isPresented = false
+        
+        // Request notification permissions after onboarding
+        // This provides better context and UX than requesting at launch
+        Task {
+            _ = await notificationManager.requestAuthorization()
+            
+            // Schedule initial notifications if authorized
+            let userProfile = PersistenceController.shared.getOrCreateUserProfile()
+            await notificationManager.scheduleSmartReminders(based: userProfile)
+        }
     }
 }
 

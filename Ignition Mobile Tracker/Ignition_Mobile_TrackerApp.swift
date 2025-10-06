@@ -26,14 +26,8 @@ struct Ignition_Mobile_TrackerApp: App {
     }
     
     private func setupNotifications() {
-        Task {
-            // Request notification permissions for local notifications only
-            _ = await notificationManager.requestAuthorization()
-            
-            // Schedule local notifications
-            let userProfile = persistenceController.getOrCreateUserProfile()
-            await notificationManager.scheduleSmartReminders(based: userProfile)
-        }
+        // Notification authorization will be requested after onboarding
+        // This provides better UX and context for the user
     }
     
     private func initializeCardCollection() {
@@ -67,13 +61,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         let viewStatsAction = UNNotificationAction(
             identifier: "VIEW_STATS",
-            title: "Vedi Stats",
+            title: "View Stats",
             options: [.foreground]
         )
         
         let dismissAction = UNNotificationAction(
             identifier: "DISMISS",
-            title: "Ignora",
+            title: "Dismiss",
             options: []
         )
         
