@@ -500,7 +500,7 @@ struct TrackerViewExpanded: View {
                     
                     // Special Filters
                     quickFilterChip(
-                        title: "Preferiti",
+                        title: "Favorites",
                         isSelected: showOnlyFavorites,
                         action: {
                             showOnlyFavorites.toggle()
@@ -509,7 +509,7 @@ struct TrackerViewExpanded: View {
                     )
                     
                     quickFilterChip(
-                        title: "Con Note",
+                        title: "With Notes",
                         isSelected: showOnlyWithNotes,
                         action: {
                             showOnlyWithNotes.toggle()
@@ -742,19 +742,19 @@ struct TrackerViewExpanded: View {
                 }
                 
                 if showOnlyFavorites {
-                    activeFilterChip(title: "Preferiti") {
+                    activeFilterChip(title: "Favorites") {
                         showOnlyFavorites = false
                     }
                 }
                 
                 if showOnlyWithNotes {
-                    activeFilterChip(title: "Con Note") {
+                    activeFilterChip(title: "With Notes") {
                         showOnlyWithNotes = false
                     }
                 }
                 
                 if hasActiveFilters {
-                    Button("Cancella Tutto") {
+                    Button("Clear All") {
                         clearAllFilters()
                         audioHapticsManager.uiTapped()
                     }
